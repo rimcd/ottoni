@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>오또니 | 데일리컷 MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --accent: #ff8fab;
+      --accent-soft: #ffe5ec;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --chip-bg: #f3f4f6;
+      --chip-text: #374151;
+      --danger: #ef4444;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    body[data-theme="cotton"] {
+      --bg: #fdf2ff;
+      --card-bg: #ffffff;
+      --accent: #ff8fab;
+      --accent-soft: #ffe5ec;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --border: #f9a8d4;
+      --chip-bg: #fee2f2;
+      --chip-text: #9f1239;
+    }
+
+    body[data-theme="space"] {
+      --bg: #020617;
+      --card-bg: #020617;
+      --accent: #6366f1;
+      --accent-soft: #1d2438;
+      --text-main: #e5e7eb;
+      --text-sub: #9ca3af;
+      --border: #1e293b;
+      --chip-bg: #111827;
+      --chip-text: #e5e7eb;
+    }
+
+    body[data-theme="green"] {
+      --bg: #ecfdf5;
+      --card-bg: #f0fdf4;
+      --accent: #22c55e;
+      --accent-soft: #bbf7d0;
+      --text-main: #064e3b;
+      --text-sub: #6b7280;
+      --border: #bbf7d0;
+      --chip-bg: #dcfce7;
+      --chip-text: #166534;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(249,250,251,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    body[data-theme="space"] header {
+      background: rgba(15,23,42,0.96);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffafcc, #bde0fe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .logo-sub {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: var(--chip-bg);
+      padding: 0.4rem 0.7rem;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--text-main);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .btn[disabled] {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    main {
+      flex: 1;
+      padding: 0.75rem 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    h2 {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+
+    .section-caption {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-bottom: 0.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      padding: 0.9rem;
+      box-shadow: 0 12px 20px rgba(15,23,42,0.05);
+    }
+
+    body[data-theme="space"] .card {
+      box-shadow: 0 18px 30px rgba(15,23,42,0.6);
+    }
+
+    .form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-hint {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+    }
+
+    input[type="file"],
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.55rem;
+      border-radius: 0.7rem;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    body[data-theme="space"] input[type="file"],
+    body[data-theme="space"] textarea,
+    body[data-theme="space"] input[type="text"],
+    body[data-theme="space"] select {
+      background: #020617;
+      color: var(--text-main);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 40px;
+      max-height: 80px;
+    }
+
+    .subpill {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip-input {
+      position: relative;
+    }
+
+    .chip-input input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip-input label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .chip-input input:checked + label {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .chip-emoji {
+      font-size: 1rem;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .date-info {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    .date-info strong {
+      color: var(--text-main);
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* 테마 스위처 */
+
+    .theme-switch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .theme-label {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+    }
+
+    .theme-buttons {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .theme-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.9);
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    .theme-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Preview card */
+
+    .preview-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .preview-card {
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffe5ec, #bde0fe);
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      color: #111827;
+      border: 1px solid rgba(148,163,184,0.4);
+    }
+
+    body[data-theme="space"] .preview-card {
+      border-color: rgba(148,163,184,0.8);
+    }
+
+    .preview-photo {
+      flex: 1;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      min-height: 180px;
+    }
+
+    .preview-footer {
+      padding: 0.5rem 0.65rem 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid rgba(148,163,184,0.3);
+      font-size: 0.72rem;
+      color: var(--text-sub);
+    }
+
+    body[data-theme="space"] .preview-footer {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      border-top-color: rgba(30,64,175,0.8);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(17,24,39,0.65);
+      color: #f9fafb;
+      font-size: 0.7rem;
+    }
+
+    .badge-soft {
+      background: rgba(249,250,251,0.92);
+      color: #111827;
+    }
+
+    body[data-theme="space"] .badge-soft {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .caption-text {
+      font-size: 0.8rem;
+      color: #111827;
+      background: rgba(255,255,255,0.9);
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.5rem;
+      max-width: 100%;
+      box-shadow: 0 4px 8px rgba(15,23,42,0.1);
+    }
+
+    body[data-theme="space"] .caption-text {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+
+    /* Date/time stamp templates */
+
+    .stamp {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 0.35rem 0.6rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 0.05rem;
+      color: #111827;
+      box-shadow: 0 6px 12px rgba(15,23,42,0.18);
+      background: #ffffff;
+      touch-action: none;
+    }
+
+    .stamp-date {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .stamp-time {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    /* 기존 템플릿 (기존 저장 데이터용) */
+    .stamp-template-1 {
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,0.6);
+    }
+
+    .stamp-template-2 {
+      background: linear-gradient(135deg, #fef9c3, #fecaca);
+      border: 1px solid rgba(249,115,22,0.5);
+    }
+
+    .stamp-template-3 {
+      background: linear-gradient(135deg, #e0f2fe, #e9d5ff);
+      border: 1px solid rgba(59,130,246,0.7);
+    }
+
+    .stamp-template-4 {
+      background: #fef3c7;
+      border-radius: 0.4rem;
+      border: 1px dashed rgba(234,179,8,0.7);
+    }
+
+    .stamp-template-5 {
+      background: #f1f5f9;
+      border: 1px solid rgba(148,163,184,0.9);
+      border-radius: 999px;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .stamp-template-5 .stamp-date {
+      font-weight: 600;
+    }
+
+    .stamp-template-5 .stamp-time {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    /* 새 테마 3종 */
+    .stamp-theme-simple {
+      background: transparent;
+      border: 1px solid rgba(248,250,252,0.9);
+      color: #f9fafb;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.2);
+    }
+
+    .stamp-theme-pink {
+      background: linear-gradient(135deg, #fb7185, #f97316);
+      border: 1px solid rgba(248,250,252,0.8);
+      color: #fefce8;
+    }
+
+    .stamp-theme-dark {
+      background: rgba(15,23,42,0.92);
+      border: 1px solid rgba(148,163,184,0.8);
+      color: #f9fafb;
+    }
+
+    /* Draggable overlays */
+
+    .draggable {
+      position: absolute;
+      touch-action: none;
+    }
+
+    .overlay-box {
+      position: absolute;
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.75rem;
+      background: rgba(15,23,42,0.18);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 12px rgba(15,23,42,0.24);
+      color: #f9fafb;
+      max-width: 80%;
+      touch-action: none;
+    }
+
+    #emotionBox {
+      top: 12px;
+      left: 55%;
+    }
+
+    #bottomBox {
+      top: 60%;
+      left: 12px;
+      right: 12px;
+    }
+
+    #bottomBox .badge-row {
+      margin-bottom: 0.2rem;
+    }
+
+    #bottomBox .caption-text {
+      background: rgba(255,255,255,0.94);
+      color: #111827;
+    }
+
+    .resize-handle {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      background: rgba(15,23,42,0.75);
+      border: 1px solid rgba(248,250,252,0.8);
+      cursor: se-resize;
+    }
+
+    .delete-handle {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(248,250,252,0.9);
+      cursor: pointer;
+      font-size: 10px;
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(15,23,42,0.5);
+    }
+
+    /* 개별 스티커 오버레이 (이모지 기본) */
+
+    .sticker-overlay {
+      position: absolute;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      color: #f9fafb;
+      font-size: 0.85rem;
+      box-shadow: 0 8px 16px rgba(15,23,42,0.5);
+      touch-action: none;
+    }
+
+    .sticker-overlay .resize-handle {
+      width: 10px;
+      height: 10px;
+      background: rgba(15,23,42,0.95);
+    }
+
+    .sticker-overlay.bubble {
+      background: #ffffff;
+      color: #111827;
+      border-radius: 1rem;
+      padding: 0.4rem 0.7rem;
+      box-shadow: 0 10px 20px rgba(15,23,42,0.35);
+      position: absolute;
+    }
+
+    .sticker-overlay.bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 14px;
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: #ffffff transparent transparent transparent;
+    }
+
+    /* SVG 일러스트 스티커 오버레이 */
+
+    .sticker-overlay.img-sticker {
+      padding: 0.2rem;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0.75rem;
+    }
+
+    .sticker-overlay.img-sticker img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      pointer-events: none;
+    }
+
+    /* 시즌 태그 chip */
+
+    .season-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.3rem;
+    }
+
+    .season-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      font-size: 0.75rem;
+    }
+
+    .season-chip button {
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--text-sub);
+    }
+
+    /* SVG 스티커 팔레트 */
+
+    .sticker-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+    }
+
+    .sticker-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 4px;
+      box-shadow: 0 4px 8px rgba(15,23,42,0.08);
+      transition: transform 0.06s ease, box-shadow 0.06s ease;
+    }
+
+    .sticker-thumb:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 14px rgba(15,23,42,0.12);
+    }
+
+    .sticker-thumb img {
+      max-width: 80%;
+      max-height: 80%;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Collection */
+
+    .collection-card {
+      margin-top: 0.25rem;
+    }
+
+    .collection-grid {
+      margin-top: 0.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .mini-card {
+      position: relative;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 130px;
+      box-shadow: 0 6px 10px rgba(15,23,42,0.05);
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
+    }
+
+    body[data-theme="space"] .mini-card {
+      background: #020617;
+      box-shadow: 0 12px 20px rgba(15,23,42,0.7);
+    }
+
+    .mini-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 16px rgba(15,23,42,0.12);
+    }
+
+    .mini-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft), 0 10px 18px rgba(15,23,42,0.15);
+    }
+
+    .mini-thumb {
+      position: relative;
+      height: 70px;
+      background-size: cover;
+      background-position: center;
+      background-image: linear-gradient(135deg, #ffe5ec, #bde0fe);
+    }
+
+    .mini-thumb-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(17,24,39,0.7), transparent);
+    }
+
+    .mini-thumb-content {
+      position: absolute;
+      inset: 0;
+      padding: 0.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #f9fafb;
+    }
+
+    .mini-body {
+      padding: 0.35rem 0.45rem 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .mini-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.15rem;
+    }
+
+    .mini-chip {
+      padding: 0.1rem 0.35rem;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      font-size: 0.65rem;
+      color: var(--chip-text);
+      max-width: 100%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .mini-caption {
+      font-size: 0.68rem;
+      color: var(--text-sub);
+      max-height: 2.4em;
+      overflow: hidden;
+    }
+
+    .empty-state {
+      padding: 0.6rem 0.4rem 0.1rem;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    .mini-select-indicator {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid #e5e7eb;
+      background: rgba(15,23,42,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #f9fafb;
+    }
+
+    .mini-card.selected .mini-select-indicator {
+      background: var(--accent);
+      border-color: #f9fafb;
+    }
+
+    /* 모달 공통 (카메라 / 뷰어) */
+
+    .camera-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .camera-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,0.75);
+      backdrop-filter: blur(4px);
+    }
+
+    .camera-dialog {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 1rem;
+      background: #0f172a;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 24px 45px rgba(15,23,42,0.6);
+      z-index: 51;
+      border: 1px solid rgba(148,163,184,0.7);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .camera-dialog video {
+      width: 100%;
+      max-height: 320px;
+      background: #020617;
+      object-fit: cover;
+    }
+
+    .camera-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.6rem 0.8rem 0.7rem;
+      background: rgba(15,23,42,0.9);
+    }
+
+    .camera-controls .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .camera-controls .btn-outline {
+      border-color: rgba(148,163,184,0.8);
+      color: #e5e7eb;
+      background: transparent;
+    }
+
+    .camera-controls .btn-primary {
+      background: #f97373;
+      border-color: #fecaca;
+    }
+
+    /* 뷰어 다이얼로그 */
+
+    .viewer-dialog {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .viewer-dialog .preview-card {
+      border-radius: 1.2rem;
+      margin: 0.6rem 0.6rem 0.3rem;
+    }
+
+    .viewer-dialog .camera-controls {
+      background: transparent;
+      padding-top: 0.2rem;
+    }
+  </style>
+</head>
+<body data-theme="cotton">
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-badge">🧸</div>
+      <div>
+        <div class="logo-title">오또니</div>
+        <div class="logo-sub">오늘 하루를, 한 장의 이미지로</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="btnNew" class="btn btn-primary">
+        ✨ 새 데일리컷
+      </button>
+      <button id="btnReset" class="btn btn-outline btn-danger">
+        초기화
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 테마 스위처 -->
+    <section class="theme-switch">
+      <div class="theme-label">
+        테마 선택
+      </div>
+      <div class="theme-buttons">
+        <button class="theme-btn active" data-theme="cotton">🍬 솜사탕</button>
+        <button class="theme-btn" data-theme="space">🪐 우주</button>
+        <button class="theme-btn" data-theme="green">🌿 그린</button>
+      </div>
+    </section>
+
+    <!-- 작성 영역 -->
+    <section id="creator-section">
+      <h2>오늘 데일리컷 만들기</h2>
+      <p class="section-caption">
+        사진 또는 배경 + 감정/경험/시즌/스티커/캡션을 선택해서 오늘을 한 장으로 기록해요.
+      </p>
+      <div class="card">
+        <div class="form-grid">
+          <div class="row">
+            <div class="date-info">
+              오늘 기준&nbsp;
+              <strong><span id="today-date"></span></strong>
+              &nbsp;·&nbsp;
+              <strong><span id="today-time"></span></strong>
+            </div>
+            <div class="subpill" id="modeLabel">
+              새 데일리컷 작성 모드
+            </div>
+          </div>
+
+          <!-- 사진 -->
+          <div class="stack">
+            <div class="field-label">
+              <span>사진</span>
+              <span class="field-hint">선택 항목 · 없으면 테마 컬러 배경 사용</span>
+            </div>
+            <div class="row">
+              <input id="photoInput" type="file" accept="image/*" />
+              <button id="btnOpenCamera" class="btn btn-outline" type="button">
+                📸 직접 촬영
+              </button>
+            </div>
+            <div class="field-hint">일부 브라우저에서는 웹에서 카메라 촬영이 지원되지 않을 수 있어요.</div>
+          </div>
+
+          <!-- 날짜/시간 스탬프 템플릿 (테마) -->
+          <div class="stack">
+            <div class="field-label">
+              <span>날짜·시간 스탬프 테마</span>
+              <span class="field-hint">배경 스타일 선택</span>
+            </div>
+            <div class="pill-row" id="templateGroup">
+              <div class="chip-input">
+                <input type="radio" name="stampTemplate" id="tpl1" value="stamp-theme-simple" checked />
+                <label for="tpl1">⬜ 심플</label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="stampTemplate" id="tpl2" value="stamp-theme-pink" />
+                <label for="tpl2">🌸 핑크</label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="stampTemplate" id="tpl3" value="stamp-theme-dark" />
+                <label for="tpl3">🖤 다크</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 날짜/시간 표시 형식 -->
+          <div class="stack">
+            <div class="field-label">
+              <span>날짜 표시 형식</span>
+              <span class="field-hint">스탬프에 어떤 정보까지 넣을지 선택</span>
+            </div>
+            <div class="pill-row" id="dateFormatGroup">
+              <div class="chip-input">
+                <input type="radio" name="dateFormat" id="fmt_date" value="date" />
+                <label for="fmt_date">📅 날짜만</label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="dateFormat" id="fmt_weekday" value="dateWeekday" checked />
+                <label for="fmt_weekday">📅 날짜 + 요일</label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="dateFormat" id="fmt_time" value="time" />
+                <label for="fmt_time">⏰ 시간만</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 감정 -->
+          <div class="stack">
+            <div class="field-label">
+              <span>오늘의 기분</span>
+              <span class="field-hint">1개 선택 (필수 권장)</span>
+            </div>
+            <div class="pill-row" id="emotionGroup">
+              <div class="chip-input">
+                <input type="radio" name="emotion" id="emo_happy" value="😄 기분 좋음" />
+                <label for="emo_happy"><span class="chip-emoji">😄</span><span>기분 좋음</span></label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="emotion" id="emo_calm" value="🙂 차분함" />
+                <label for="emo_calm"><span class="chip-emoji">🙂</span><span>차분함</span></label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="emotion" id="emo_tired" value="😵‍💫 피곤함" />
+                <label for="emo_tired"><span class="chip-emoji">😵‍💫</span><span>피곤함</span></label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="emotion" id="emo_proud" value="🤩 뿌듯함" />
+                <label for="emo_proud"><span class="chip-emoji">🤩</span><span>뿌듯함</span></label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="emotion" id="emo_sad" value="😭 우울함" />
+                <label for="emo_sad"><span class="chip-emoji">😭</span><span>우울함</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 경험 키워드 -->
+          <div class="stack">
+            <div class="field-label">
+              <span>오늘의 경험 키워드</span>
+              <span class="field-hint">최소 1개 · 최대 3개 추천</span>
+            </div>
+            <div class="pill-row" id="expGroup">
+              <div class="chip-input">
+                <input type="checkbox" id="exp_study" value="공부" />
+                <label for="exp_study">📚 공부</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_work" value="업무" />
+                <label for="exp_work">💼 업무</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_dev" value="코딩" />
+                <label for="exp_dev">💻 코딩</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_run" value="러닝" />
+                <label for="exp_run">🏃 러닝</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_gym" value="운동" />
+                <label for="exp_gym">🏋 운동</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_rest" value="휴식" />
+                <label for="exp_rest">🛋 휴식</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_friends" value="사람" />
+                <label for="exp_friends">👥 사람</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="exp_content" value="콘텐츠" />
+                <label for="exp_content">🎧 콘텐츠</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 시즌 태그 (여러개 가능) -->
+          <div class="stack">
+            <div class="field-label">
+              <span>이번 시즌 태그</span>
+              <span class="field-hint">여러 개 추가 가능 · Enter 또는 추가 버튼</span>
+            </div>
+            <div class="row">
+              <input id="seasonInput" type="text" list="seasonSuggestions" placeholder="#일상, #회사, #공부 ..." />
+              <button id="btnAddSeason" class="btn btn-outline" type="button" style="font-size:0.75rem;padding:0.35rem 0.7rem;">
+                추가
+              </button>
+            </div>
+            <datalist id="seasonSuggestions">
+              <option value="#일상"></option>
+              <option value="#회사"></option>
+              <option value="#공부"></option>
+              <option value="#러닝"></option>
+              <option value="#시험"></option>
+              <option value="#마감"></option>
+              <option value="#휴식기"></option>
+            </datalist>
+            <div class="season-tags-row" id="seasonTagsContainer"></div>
+            <div class="field-hint">앞에 #을 붙여 해시태그처럼 써도 되고, 자유롭게 텍스트로 적어도 돼요.</div>
+          </div>
+
+          <!-- 스티커 (이모지) -->
+          <div class="stack">
+            <div class="field-label">
+              <span>스티커</span>
+              <span class="field-hint">개별 스티커를 자유롭게 배치할 수 있어요</span>
+            </div>
+            <div class="pill-row" id="stickerGroup">
+              <div class="chip-input">
+                <input type="checkbox" id="st_star" value="⭐" />
+                <label for="st_star">⭐ 별</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="st_heart" value="❤️" />
+                <label for="st_heart">❤️ 하트</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="st_coffee" value="☕️" />
+                <label for="st_coffee">☕️ 커피</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="st_book" value="📖" />
+                <label for="st_book">📖 책</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="st_laptop" value="💻" />
+                <label for="st_laptop">💻 노트북</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="st_shoes" value="👟" />
+                <label for="st_shoes">👟 신발</label>
+              </div>
+              <div class="chip-input">
+                <input type="checkbox" id="st_bubble" value="💬 말풍선" />
+                <label for="st_bubble">💬 말풍선</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 일러스트 스티커 (SVG) -->
+          <div class="stack">
+            <div class="field-label">
+              <span>일러스트 스티커</span>
+              <span class="field-hint">탭하면 미리보기 위에 추가돼요</span>
+            </div>
+            <div class="sticker-palette" id="imageStickerPalette">
+              <button type="button" class="sticker-thumb" data-img="s1.svg">
+                <img src="img/s1.svg" alt="sticker 1" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s2.svg">
+                <img src="img/s2.svg" alt="sticker 2" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s3.svg">
+                <img src="img/s3.svg" alt="sticker 3" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s4.svg">
+                <img src="img/s4.svg" alt="sticker 4" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s5.svg">
+                <img src="img/s5.svg" alt="sticker 5" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s6.svg">
+                <img src="img/s6.svg" alt="sticker 6" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s7.svg">
+                <img src="img/s7.svg" alt="sticker 7" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s8.svg">
+                <img src="img/s8.svg" alt="sticker 8" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s9.svg">
+                <img src="img/s9.svg" alt="sticker 9" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s10.svg">
+                <img src="img/s10.svg" alt="sticker 10" />
+              </button>
+              <button type="button" class="sticker-thumb" data-img="s11.svg">
+                <img src="img/s11.svg" alt="sticker 11" />
+              </button>
+            </div>
+            <div class="field-hint">프로젝트 루트 기준 <code>/img/s1.svg ~ s11.svg</code> 파일을 두면 자동으로 불러와요.</div>
+          </div>
+
+          <!-- 캡션 -->
+          <div class="stack">
+            <div class="field-label">
+              <span>오늘의 한 줄</span>
+              <span class="field-hint">선택 입력 · 최대 50자</span>
+            </div>
+            <textarea id="captionInput" maxlength="50" placeholder="예) 카페에서 머리가 다시 돌아가기 시작한 날"></textarea>
+          </div>
+
+          <div id="errorBox" class="error" style="display:none;"></div>
+
+          <div class="row">
+            <button id="btnPreview" class="btn btn-outline" type="button">미리보기만 보기</button>
+            <button id="btnSave" class="btn btn-primary" type="button">저장하기</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 0.75rem;"></div>
+
+      <!-- 미리보기 카드 -->
+      <div class="preview-wrapper">
+        <div class="field-label">
+          <span>데일리컷 미리보기</span>
+          <span class="field-hint">저장 전 결과를 미리 확인해요 · 요소를 드래그·리사이즈로 조정 가능</span>
+        </div>
+        <div class="preview-card" id="previewCard">
+          <div class="preview-photo" id="previewPhoto">
+            <!-- 날짜/시간 스탬프 -->
+            <div id="dateStamp" class="stamp stamp-theme-simple draggable">
+              <div class="stamp-date" id="previewDate"></div>
+              <div class="stamp-time" id="previewTime"></div>
+              <div class="resize-handle"></div>
+            </div>
+
+            <!-- 감정 박스 -->
+            <div id="emotionBox" class="overlay-box draggable">
+              <div class="badge" id="previewEmotion">🙂 차분한 하루</div>
+              <div class="resize-handle"></div>
+            </div>
+
+            <!-- 하단 영역: 경험 + 캡션 -->
+            <div id="bottomBox" class="overlay-box draggable">
+              <div class="badge-row" id="previewExperiences"></div>
+              <div class="caption-text" id="previewCaption"></div>
+              <div class="resize-handle"></div>
+            </div>
+
+            <!-- 개별 스티커 오버레이들: JS에서 생성 -->
+          </div>
+          <div class="preview-footer">
+            <span>오또니 · 데일리컷</span>
+            <span id="previewFooterTime"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 모아보기 -->
+    <section id="collection-section">
+      <h2>모아보기</h2>
+      <p class="section-caption">
+        저장된 데일리컷을 한눈에 볼 수 있어요. 카드를 탭하면 크게 보고, 선택 모드에서는 여러 개를 한 번에 삭제할 수 있어요.
+      </p>
+      <div class="card collection-card">
+        <div class="row">
+          <span class="subpill">저장된 데일리컷</span>
+          <div class="row" style="gap:0.25rem;">
+            <span class="subpill" id="countLabel"></span>
+            <button id="btnSelectMode" class="btn btn-outline" type="button" style="font-size:0.7rem;padding:0.2rem 0.5rem;">
+              선택
+            </button>
+            <button id="btnDeleteSelected" class="btn btn-outline btn-danger" type="button" style="font-size:0.7rem;padding:0.2rem 0.5rem;display:none;">
+              선택 삭제
+            </button>
+          </div>
+        </div>
+        <div id="collectionEmpty" class="empty-state" style="display:none;">
+          아직 저장된 데일리컷이 없어요. 위에서 오늘의 첫 카드를 만들어볼까요?
+        </div>
+        <div id="collectionGrid" class="collection-grid"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 카메라 모달 -->
+<div id="cameraModal" class="camera-modal">
+  <div class="camera-backdrop"></div>
+  <div class="camera-dialog">
+    <video id="cameraVideo" autoplay playsinline></video>
+    <div class="camera-controls">
+      <button id="btnCapture" class="btn btn-primary" type="button">📸 촬영</button>
+      <button id="btnCloseCamera" class="btn btn-outline" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+<canvas id="cameraCanvas" style="display:none;"></canvas>
+
+<!-- 큰 이미지 보기 모달 -->
+<div id="viewerModal" class="camera-modal">
+  <div class="camera-backdrop"></div>
+  <div class="camera-dialog viewer-dialog">
+    <div class="preview-card" id="viewerCard">
+      <div class="preview-photo" id="viewerPhoto">
+        <div id="viewerStamp" class="stamp stamp-theme-simple">
+          <div class="stamp-date" id="viewerDate"></div>
+          <div class="stamp-time" id="viewerTime"></div>
+        </div>
+        <div id="viewerEmotionBox" class="overlay-box" style="top:12px;left:55%;">
+          <div class="badge" id="viewerEmotion"></div>
+        </div>
+        <div id="viewerBottomBox" class="overlay-box" style="left:12px;right:12px;bottom:12px;">
+          <div class="badge-row" id="viewerExperiences"></div>
+          <div class="caption-text" id="viewerCaption"></div>
+        </div>
+      </div>
+      <div class="preview-footer">
+        <span id="viewerSeasons"></span>
+        <span id="viewerFooterTime"></span>
+      </div>
+    </div>
+    <div class="camera-controls">
+      <button id="btnDownloadViewer" class="btn btn-outline" type="button">사진 저장</button>
+      <button id="btnShareViewer" class="btn btn-outline" type="button">공유</button>
+      <button id="btnEditFromViewer" class="btn btn-outline" type="button">✏️ 편집하기</button>
+      <button id="btnCloseViewer" class="btn btn-outline" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const STORAGE_KEY = "ottoneeDailyCuts_v3";
+    let viewerCurrentId = null;
+
+    let state = {
+      imageDataUrl: null,
+      cuts: [],
+      currentStampClass: "stamp-theme-simple",
+      dateFormat: "dateWeekday",
+      editingId: null,
+      currentSeasonTags: [],
+      selectionMode: false,
+      selectedIds: new Set()
+    };
+
+    let cameraStream = null;
+
+    // --- 유틸 ---
+
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}.${m}.${d}`;
+    }
+
+    function formatTime(date) {
+      const h = String(date.getHours()).padStart(2, "0");
+      const m = String(date.getMinutes()).padStart(2, "0");
+      return `${h}:${m}`;
+    }
+
+    const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+
+    function getWeekdayLabel(dateStr) {
+      if (!dateStr) return "";
+      const parts = dateStr.split(".");
+      if (parts.length < 3) return "";
+      const y = Number(parts[0]);
+      const m = Number(parts[1]) - 1;
+      const d = Number(parts[2]);
+      const dt = new Date(y, m, d);
+      if (isNaN(dt.getTime())) return "";
+      return WEEKDAY_LABELS[dt.getDay()] || "";
+    }
+
+    function applyStampFormat(dateStr, timeStr, format, dateEl, timeEl) {
+      if (!dateEl || !timeEl) return;
+      dateEl.style.display = "";
+      timeEl.style.display = "";
+
+      if (format === "date") {
+        dateEl.textContent = dateStr || "";
+        timeEl.textContent = "";
+        timeEl.style.display = "none";
+      } else if (format === "dateWeekday") {
+        const w = getWeekdayLabel(dateStr);
+        dateEl.textContent = w ? `${dateStr} (${w})` : (dateStr || "");
+        timeEl.textContent = "";
+        timeEl.style.display = "none";
+      } else if (format === "time") {
+        dateEl.textContent = timeStr || "";
+        timeEl.textContent = "";
+        timeEl.style.display = "none";
+      } else {
+        // fallback: 날짜 + 시간
+        dateEl.textContent = dateStr || "";
+        timeEl.textContent = timeStr || "";
+      }
+    }
+
+    function loadCuts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          state.cuts = [];
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          state.cuts = parsed;
+        } else {
+          state.cuts = [];
+        }
+      } catch (e) {
+        console.warn("Failed to load cuts", e);
+        state.cuts = [];
+      }
+    }
+
+    function saveCuts() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cuts));
+      } catch (e) {
+        console.warn("Failed to save cuts", e);
+      }
+    }
+
+    function showError(msg) {
+      const box = document.getElementById("errorBox");
+      box.textContent = msg;
+      box.style.display = msg ? "block" : "none";
+    }
+
+    function getCurrentCut() {
+      if (!state.editingId) return null;
+      return state.cuts.find(c => c.id === state.editingId) || null;
+    }
+
+    function updateModeUI() {
+      const modeLabel = document.getElementById("modeLabel");
+      const btnSave = document.getElementById("btnSave");
+      if (state.editingId) {
+        modeLabel.textContent = "저장된 데일리컷 편집 모드";
+        btnSave.textContent = "수정 저장";
+      } else {
+        modeLabel.textContent = "새 데일리컷 작성 모드";
+        btnSave.textContent = "저장하기";
+      }
+    }
+
+    // --- 테마 ---
+
+    function setTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+      document.querySelectorAll(".theme-btn").forEach(btn => {
+        if (btn.dataset.theme === theme) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+      updatePreviewFromForm();
+    }
+
+    // --- 드래그 & 리사이즈 ---
+
+    let activeEl = null;
+    let dragMode = null; // "move" | "resize"
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+    let startWidth = 0;
+    let startHeight = 0;
+    let containerRect = null;
+
+    function getPoint(e) {
+      if (e.touches && e.touches.length) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    function onPointerDown(e) {
+      const target = e.target;
+
+      // 삭제 버튼은 드래그/리사이즈 무시
+      if (target.classList.contains("delete-handle")) {
+        return;
+      }
+
+      let el;
+      if (target.classList.contains("resize-handle")) {
+        dragMode = "resize";
+        el = target.parentElement;
+      } else {
+        el = target.closest(".draggable");
+        dragMode = "move";
+      }
+      if (!el) return;
+
+      activeEl = el;
+      const pt = getPoint(e);
+      startX = pt.x;
+      startY = pt.y;
+      startLeft = el.offsetLeft;
+      startTop = el.offsetTop;
+      startWidth = el.offsetWidth;
+      startHeight = el.offsetHeight;
+      const container = document.getElementById("previewPhoto");
+      containerRect = container.getBoundingClientRect();
+
+      document.addEventListener("mousemove", onPointerMove);
+      document.addEventListener("mouseup", onPointerUp);
+      document.addEventListener("touchmove", onPointerMove, { passive: false });
+      document.addEventListener("touchend", onPointerUp);
+
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!activeEl) return;
+      const pt = getPoint(e);
+      const dx = pt.x - startX;
+      const dy = pt.y - startY;
+
+      if (dragMode === "move") {
+        let newLeft = startLeft + dx;
+        let newTop = startTop + dy;
+        const elRect = activeEl.getBoundingClientRect();
+
+        const maxLeft = containerRect.width - elRect.width;
+        const maxTop = containerRect.height - elRect.height;
+
+        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+
+        activeEl.style.left = newLeft + "px";
+        activeEl.style.top = newTop + "px";
+      } else if (dragMode === "resize") {
+        let newWidth = startWidth + dx;
+        newWidth = Math.max(60, Math.min(newWidth, containerRect.width));
+
+        if (activeEl.classList.contains("sticker-overlay")) {
+          let newHeight = startHeight + dy;
+          newHeight = Math.max(40, Math.min(newHeight, containerRect.height));
+          activeEl.style.width = newWidth + "px";
+          activeEl.style.height = newHeight + "px";
+        } else {
+          activeEl.style.width = newWidth + "px";
+        }
+      }
+
+      e.preventDefault();
+    }
+
+    function onPointerUp() {
+      activeEl = null;
+      dragMode = null;
+      document.removeEventListener("mousemove", onPointerMove);
+      document.removeEventListener("mouseup", onPointerUp);
+      document.removeEventListener("touchmove", onPointerMove);
+      document.removeEventListener("touchend", onPointerUp);
+    }
+
+    function attachDraggable(el) {
+      if (!el || el.dataset.draggableAttached === "1") return;
+      el.style.position = "absolute";
+      el.style.touchAction = "none";
+      el.classList.add("draggable");
+      el.addEventListener("mousedown", onPointerDown);
+      el.addEventListener("touchstart", onPointerDown, { passive: false });
+      const handle = el.querySelector(".resize-handle");
+      if (handle) {
+        handle.addEventListener("mousedown", onPointerDown);
+        handle.addEventListener("touchstart", onPointerDown, { passive: false });
+      }
+      el.dataset.draggableAttached = "1";
+    }
+
+    function initDraggables() {
+      const container = document.getElementById("previewPhoto");
+      const draggables = container.querySelectorAll(".draggable");
+      draggables.forEach(attachDraggable);
+    }
+
+    // --- 시즌 태그 ---
+
+    function renderSeasonTags() {
+      const cont = document.getElementById("seasonTagsContainer");
+      cont.innerHTML = "";
+      if (!state.currentSeasonTags.length) return;
+      state.currentSeasonTags.forEach(tag => {
+        const chip = document.createElement("div");
+        chip.className = "season-chip";
+        const span = document.createElement("span");
+        span.textContent = tag;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "✕";
+        btn.addEventListener("click", () => {
+          state.currentSeasonTags = state.currentSeasonTags.filter(t => t !== tag);
+          renderSeasonTags();
+          updatePreviewFromForm();
+        });
+        chip.appendChild(span);
+        chip.appendChild(btn);
+        cont.appendChild(chip);
+      });
+    }
+
+    function addSeasonTagFromInput() {
+      const input = document.getElementById("seasonInput");
+      let value = input.value.trim();
+      if (!value) return;
+      if (!state.currentSeasonTags.includes(value)) {
+        state.currentSeasonTags.push(value);
+      }
+      input.value = "";
+      renderSeasonTags();
+      updatePreviewFromForm();
+    }
+
+    // --- 스티커 삭제 핸들 생성 ---
+
+    function ensureDeleteHandle(overlay) {
+      if (!overlay) return;
+      if (!overlay.querySelector(".delete-handle")) {
+        const del = document.createElement("div");
+        del.className = "delete-handle";
+        del.textContent = "×";
+        overlay.appendChild(del);
+      }
+    }
+
+    // --- 스티커 오버레이 동기화 (이모지) ---
+
+    function syncStickerOverlays() {
+      const previewPhoto = document.getElementById("previewPhoto");
+      const checkboxes = Array.from(document.querySelectorAll("#stickerGroup input[type='checkbox']"));
+
+      checkboxes.forEach(chk => {
+        const key = chk.id;
+        const label = chk.value;
+        let overlay = previewPhoto.querySelector(`.sticker-overlay[data-sticker-key="${key}"]`);
+        if (chk.checked) {
+          if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.className = "sticker-overlay draggable";
+            overlay.dataset.stickerKey = key;
+            if (key === "st_bubble") {
+              overlay.classList.add("bubble");
+              overlay.textContent = "오늘의 한 마디";
+            } else {
+              overlay.textContent = label;
+            }
+            const handle = document.createElement("div");
+            handle.className = "resize-handle";
+            overlay.appendChild(handle);
+            ensureDeleteHandle(overlay);
+            overlay.style.left = "60px";
+            overlay.style.top = "40px";
+            previewPhoto.appendChild(overlay);
+            attachDraggable(overlay);
+          } else {
+            if (key === "st_bubble") {
+              overlay.classList.add("bubble");
+              overlay.textContent = "오늘의 한 마디";
+            } else {
+              overlay.classList.remove("bubble");
+              overlay.textContent = label;
+            }
+            if (!overlay.querySelector(".resize-handle")) {
+              const handle = document.createElement("div");
+              handle.className = "resize-handle";
+              overlay.appendChild(handle);
+            }
+            ensureDeleteHandle(overlay);
+          }
+        } else {
+          if (overlay) {
+            overlay.remove();
+          }
+        }
+      });
+    }
+
+    // --- SVG 일러스트 스티커 추가/복원 ---
+
+    function addImageSticker(filename, keyFromData) {
+      const previewPhoto = document.getElementById("previewPhoto");
+      const key = keyFromData || `img-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "sticker-overlay img-sticker draggable";
+      wrapper.dataset.stickerKey = key;
+      wrapper.dataset.stickerImg = filename;
+
+      const img = document.createElement("img");
+      img.src = `img/${filename}`;
+      img.alt = filename;
+
+      const handle = document.createElement("div");
+      handle.className = "resize-handle";
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(handle);
+      ensureDeleteHandle(wrapper);
+
+      wrapper.style.left = "40px";
+      wrapper.style.top = "40px";
+      wrapper.style.width = "80px";
+      wrapper.style.height = "80px";
+
+      previewPhoto.appendChild(wrapper);
+      attachDraggable(wrapper);
+    }
+
+    function recreateImageStickers(cut) {
+      const photo = document.getElementById("previewPhoto");
+      // 기존 이미지 스티커 제거
+      photo.querySelectorAll(".sticker-overlay.img-sticker").forEach(el => el.remove());
+      if (!cut || !Array.isArray(cut.stickerImages)) return;
+      cut.stickerImages.forEach(s => {
+        if (!s.img) return;
+        addImageSticker(s.img, s.key);
+      });
+    }
+
+    // --- 미리보기 업데이트 ---
+
+    function updatePreviewFromForm() {
+      const previewDate = document.getElementById("previewDate");
+      const previewTime = document.getElementById("previewTime");
+      const previewFooterTime = document.getElementById("previewFooterTime");
+
+      let dateStr, timeStr;
+      const currentCut = getCurrentCut();
+      if (currentCut) {
+        dateStr = currentCut.date;
+        timeStr = currentCut.time;
+      } else {
+        const now = new Date();
+        dateStr = formatDate(now);
+        timeStr = formatTime(now);
+      }
+
+      if (previewFooterTime) previewFooterTime.textContent = timeStr;
+      applyStampFormat(dateStr, timeStr, state.dateFormat, previewDate, previewTime);
+
+      // 감정
+      const emotionInput = document.querySelector("input[name='emotion']:checked");
+      const previewEmotion = document.getElementById("previewEmotion");
+      if (emotionInput) {
+        previewEmotion.textContent = emotionInput.value;
+      } else {
+        previewEmotion.textContent = "🙂 차분한 하루";
+      }
+
+      // 경험 키워드
+      const expContainer = document.getElementById("previewExperiences");
+      expContainer.innerHTML = "";
+      const expChecked = Array.from(document.querySelectorAll("#expGroup input:checked"));
+      expChecked.forEach(chk => {
+        const badge = document.createElement("div");
+        badge.className = "badge badge-soft";
+        badge.textContent = chk.value;
+        expContainer.appendChild(badge);
+      });
+
+      // 캡션
+      const captionValue = document.getElementById("captionInput").value.trim();
+      const previewCaption = document.getElementById("previewCaption");
+      previewCaption.textContent = captionValue;
+
+      // 사진 / 배경
+      const previewPhoto = document.getElementById("previewPhoto");
+      if (state.imageDataUrl) {
+        previewPhoto.style.backgroundImage = `url(${state.imageDataUrl})`;
+      } else {
+        const theme = document.body.getAttribute("data-theme") || "cotton";
+        let bg;
+        if (theme === "space") {
+          bg = "radial-gradient(circle at 10% 20%, #1e293b 0, #020617 40%, #0b1120 100%)";
+        } else if (theme === "green") {
+          bg = "linear-gradient(135deg, #dcfce7, #bbf7d0)";
+        } else {
+          if (emotionInput && emotionInput.id === "emo_happy") {
+            bg = "linear-gradient(135deg, #ffe0f0, #bde0fe)";
+          } else if (emotionInput && emotionInput.id === "emo_tired") {
+            bg = "linear-gradient(135deg, #e0f2fe, #e5e7eb)";
+          } else if (emotionInput && emotionInput.id === "emo_proud") {
+            bg = "linear-gradient(135deg, #fef9c3, #fecaca)";
+          } else if (emotionInput && emotionInput.id === "emo_sad") {
+            bg = "linear-gradient(135deg, #e0e7ff, #fecdd3)";
+          } else {
+            bg = "linear-gradient(135deg, #ffe5ec, #bde0fe)";
+          }
+        }
+        previewPhoto.style.backgroundImage = bg;
+      }
+
+      // 스탬프 템플릿
+      const stamp = document.getElementById("dateStamp");
+      if (stamp) {
+        stamp.className = `stamp draggable ${state.currentStampClass}`;
+      }
+
+      // 이모지 스티커 오버레이
+      syncStickerOverlays();
+    }
+
+    // --- 레이아웃 정보 저장 ---
+
+    function buildLayout() {
+      const photo = document.getElementById("previewPhoto");
+      const rect = photo.getBoundingClientRect();
+      const w = rect.width || 1;
+      const h = rect.height || 1;
+
+      function extract(el) {
+        if (!el) return null;
+        return {
+          left: el.offsetLeft / w,
+          top: el.offsetTop / h,
+          width: el.offsetWidth / w,
+          height: el.offsetHeight / h
+        };
+      }
+
+      const stampEl = document.getElementById("dateStamp");
+      const emotionEl = document.getElementById("emotionBox");
+      const bottomEl = document.getElementById("bottomBox");
+
+      const layout = {
+        stamp: extract(stampEl),
+        emotionBox: extract(emotionEl),
+        bottomBox: extract(bottomEl),
+        stickers: []
+      };
+
+      const stickerEls = photo.querySelectorAll(".sticker-overlay");
+      stickerEls.forEach(el => {
+        const key = el.dataset.stickerKey;
+        if (!key) return;
+        const pos = extract(el);
+        layout.stickers.push({
+          key,
+          img: el.dataset.stickerImg || null,
+          left: pos.left,
+          top: pos.top,
+          width: pos.width,
+          height: pos.height
+        });
+      });
+
+      return layout;
+    }
+
+    function applyLayout(layout) {
+      if (!layout) return;
+      const photo = document.getElementById("previewPhoto");
+      const rect = photo.getBoundingClientRect();
+      const w = rect.width || 1;
+      const h = rect.height || 1;
+
+      function applyTo(el, info) {
+        if (!el || !info) return;
+        el.style.left = (info.left * w) + "px";
+        el.style.top = (info.top * h) + "px";
+        if (info.width) {
+          el.style.width = (info.width * w) + "px";
+        }
+        if (info.height) {
+          el.style.height = (info.height * h) + "px";
+        }
+      }
+
+      const stampEl = document.getElementById("dateStamp");
+      const emotionEl = document.getElementById("emotionBox");
+      const bottomEl = document.getElementById("bottomBox");
+
+      applyTo(stampEl, layout.stamp);
+      applyTo(emotionEl, layout.emotionBox);
+      applyTo(bottomEl, layout.bottomBox);
+
+      if (Array.isArray(layout.stickers)) {
+        layout.stickers.forEach(s => {
+          const el = photo.querySelector(`.sticker-overlay[data-sticker-key="${s.key}"]`);
+          applyTo(el, s);
+        });
+      }
+    }
+
+    // --- 선택 모드 UI ---
+
+    function updateSelectionButtons() {
+      const btnSelectMode = document.getElementById("btnSelectMode");
+      const btnDeleteSelected = document.getElementById("btnDeleteSelected");
+      if (!btnSelectMode || !btnDeleteSelected) return;
+
+      if (!state.cuts.length) {
+        btnSelectMode.style.display = "none";
+        btnDeleteSelected.style.display = "none";
+        return;
+      }
+
+      btnSelectMode.style.display = "inline-flex";
+
+      if (state.selectionMode) {
+        btnSelectMode.textContent = "선택 해제";
+        btnDeleteSelected.style.display = "inline-flex";
+        const count = state.selectedIds.size;
+        btnDeleteSelected.disabled = count === 0;
+        btnDeleteSelected.textContent = count ? `선택 삭제 (${count})` : "선택 삭제";
+      } else {
+        btnSelectMode.textContent = "선택";
+        btnDeleteSelected.style.display = "none";
+      }
+    }
+
+    function toggleSelected(id) {
+      if (state.selectedIds.has(id)) {
+        state.selectedIds.delete(id);
+      } else {
+        state.selectedIds.add(id);
+      }
+      renderCollection();
+    }
+
+    function deleteSelectedCuts() {
+      const count = state.selectedIds.size;
+      if (!count) return;
+      if (!confirm(`${count}개의 데일리컷을 삭제할까요?`)) return;
+      state.cuts = state.cuts.filter(c => !state.selectedIds.has(c.id));
+      state.selectedIds.clear();
+      state.selectionMode = false;
+      saveCuts();
+      renderCollection();
+      updateSelectionButtons();
+    }
+
+    // --- 모아보기 렌더링 ---
+
+    function renderCollection() {
+      const grid = document.getElementById("collectionGrid");
+      const empty = document.getElementById("collectionEmpty");
+      const countLabel = document.getElementById("countLabel");
+
+      grid.innerHTML = "";
+
+      if (!state.cuts.length) {
+        empty.style.display = "block";
+        countLabel.textContent = "0개";
+        updateSelectionButtons();
+        return;
+      }
+
+      empty.style.display = "none";
+      countLabel.textContent = `${state.cuts.length}개`;
+
+      const sorted = [...state.cuts].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      sorted.forEach(cut => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "mini-card";
+        wrapper.dataset.cutId = cut.id;
+
+        if (state.selectionMode && state.selectedIds.has(cut.id)) {
+          wrapper.classList.add("selected");
+        }
+
+        const thumb = document.createElement("div");
+        thumb.className = "mini-thumb";
+        if (cut.imageDataUrl) {
+          thumb.style.backgroundImage = `url(${cut.imageDataUrl})`;
+        } else {
+          thumb.style.backgroundImage = "linear-gradient(135deg, #ffe5ec, #bde0fe)";
+        }
+
+        if (state.selectionMode) {
+          const indicator = document.createElement("div");
+          indicator.className = "mini-select-indicator";
+          indicator.textContent = state.selectedIds.has(cut.id) ? "✓" : "";
+          wrapper.appendChild(indicator);
+        }
+
+        const thumbOverlay = document.createElement("div");
+        thumbOverlay.className = "mini-thumb-overlay";
+        const thumbContent = document.createElement("div");
+        thumbContent.className = "mini-thumb-content";
+
+        const topRow = document.createElement("div");
+        topRow.style.display = "flex";
+        topRow.style.justifyContent = "space-between";
+        topRow.style.gap = "0.25rem";
+
+        const dateSpan = document.createElement("span");
+        dateSpan.textContent = cut.date;
+        topRow.appendChild(dateSpan);
+
+        const seasons = cut.seasons && cut.seasons.length
+          ? cut.seasons
+          : (cut.season ? [cut.season] : []);
+        const seasonSpan = document.createElement("span");
+        seasonSpan.textContent = seasons.join(" ");
+        seasonSpan.style.fontSize = "0.65rem";
+        seasonSpan.style.opacity = "0.8";
+        topRow.appendChild(seasonSpan);
+
+        const emoSpan = document.createElement("span");
+        emoSpan.textContent = cut.emotion || "";
+        emoSpan.style.fontSize = "0.8rem";
+
+        thumbContent.appendChild(topRow);
+        thumbContent.appendChild(emoSpan);
+
+        thumb.appendChild(thumbOverlay);
+        thumb.appendChild(thumbContent);
+
+        const body = document.createElement("div");
+        body.className = "mini-body";
+
+        const chipRow = document.createElement("div");
+        chipRow.className = "mini-chip-row";
+
+        if (cut.mainExperience) {
+          const chip = document.createElement("div");
+          chip.className = "mini-chip";
+          chip.textContent = cut.mainExperience;
+          chipRow.appendChild(chip);
+        }
+
+        // 시즌 태그 2개까지 보여주기
+        seasons.slice(0, 2).forEach(s => {
+          const chip = document.createElement("div");
+          chip.className = "mini-chip";
+          chip.textContent = s;
+          chipRow.appendChild(chip);
+        });
+
+        if (cut.stickers && cut.stickers.length) {
+          const chip = document.createElement("div");
+          chip.className = "mini-chip";
+          chip.textContent = cut.stickers.map(s => s.label).join(" ");
+          chipRow.appendChild(chip);
+        }
+
+        const caption = document.createElement("div");
+        caption.className = "mini-caption";
+        caption.textContent = cut.caption || "";
+
+        body.appendChild(chipRow);
+        body.appendChild(caption);
+
+        wrapper.appendChild(thumb);
+        wrapper.appendChild(body);
+
+        grid.appendChild(wrapper);
+      });
+
+      updateSelectionButtons();
+    }
+
+    // --- 저장/업데이트 ---
+
+    function handleSave() {
+      showError("");
+
+      const now = new Date();
+      const headerDateStr = formatDate(now);
+      const headerTimeStr = formatTime(now);
+
+      const emotionInput = document.querySelector("input[name='emotion']:checked");
+      const emotion = emotionInput ? emotionInput.value : "";
+
+      const experiences = Array.from(document.querySelectorAll("#expGroup input:checked")).map(chk => chk.value);
+      const caption = document.getElementById("captionInput").value.trim();
+
+      const stickerCheckboxes = Array.from(document.querySelectorAll("#stickerGroup input:checked"));
+      const stickers = stickerCheckboxes.map(chk => ({
+        key: chk.id,
+        label: chk.value
+      }));
+
+      const photoEl = document.getElementById("previewPhoto");
+      const imageStickerEls = photoEl.querySelectorAll(".sticker-overlay.img-sticker");
+      const stickerImages = [];
+      imageStickerEls.forEach(el => {
+        if (!el.dataset.stickerKey || !el.dataset.stickerImg) return;
+        stickerImages.push({
+          key: el.dataset.stickerKey,
+          img: el.dataset.stickerImg
+        });
+      });
+
+      if (!emotion && experiences.length === 0) {
+        showError("감정 또는 경험 키워드를 최소 1개 이상 선택해주세요.");
+        return;
+      }
+
+      const layout = buildLayout();
+
+      if (state.editingId) {
+        const idx = state.cuts.findIndex(c => c.id === state.editingId);
+        if (idx !== -1) {
+          const existing = state.cuts[idx];
+          const updated = {
+            ...existing,
+            imageDataUrl: state.imageDataUrl || null,
+            emotion,
+            experiences,
+            mainExperience: experiences[0] || "",
+            seasons: state.currentSeasonTags.slice(),
+            season: state.currentSeasonTags[0] || "",
+            caption,
+            stickers,
+            stickerImages,
+            stampTemplate: state.currentStampClass,
+            dateFormat: state.dateFormat,
+            layout
+          };
+          state.cuts[idx] = updated;
+          saveCuts();
+          renderCollection();
+          showError("");
+          alert("데일리컷이 수정되었어요!");
+        }
+      } else {
+        const cut = {
+          id: Date.now().toString(),
+          createdAt: Date.now(),
+          date: headerDateStr,
+          time: headerTimeStr,
+          imageDataUrl: state.imageDataUrl || null,
+          emotion,
+          experiences,
+          mainExperience: experiences[0] || "",
+          seasons: state.currentSeasonTags.slice(),
+          season: state.currentSeasonTags[0] || "",
+          caption,
+          stickers,
+          stickerImages,
+          stampTemplate: state.currentStampClass,
+          dateFormat: state.dateFormat,
+          layout
+        };
+
+        state.cuts.push(cut);
+        saveCuts();
+        renderCollection();
+
+        showError("");
+        alert("데일리컷이 저장되었어요!");
+
+        document.getElementById("photoInput").value = "";
+        state.imageDataUrl = null;
+        document.querySelectorAll("input[name='emotion']").forEach(r => r.checked = false);
+        document.querySelectorAll("#expGroup input[type='checkbox']").forEach(chk => chk.checked = false);
+        state.currentSeasonTags = [];
+        renderSeasonTags();
+        document.getElementById("captionInput").value = "";
+        document.querySelectorAll("#stickerGroup input[type='checkbox']").forEach(chk => chk.checked = false);
+
+        // 이미지 스티커 초기화
+        photoEl.querySelectorAll(".sticker-overlay.img-sticker").forEach(el => el.remove());
+
+        updatePreviewFromForm();
+      }
+    }
+
+    function handleResetAll() {
+      if (!confirm("정말 모든 데일리컷을 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) {
+        return;
+      }
+      state.cuts = [];
+      state.editingId = null;
+      state.selectedIds.clear();
+      state.selectionMode = false;
+      saveCuts();
+      renderCollection();
+      updateModeUI();
+      showError("");
+    }
+
+    // --- 편집 모드 진입 ---
+
+    function enterEditMode(cutId) {
+      const cut = state.cuts.find(c => c.id === cutId);
+      if (!cut) return;
+
+      state.editingId = cutId;
+      state.imageDataUrl = cut.imageDataUrl || null;
+      state.currentStampClass = cut.stampTemplate || "stamp-theme-simple";
+      state.dateFormat = cut.dateFormat || "dateWeekday";
+
+      // 스탬프 테마 라디오
+      const tplInputs = document.querySelectorAll("input[name='stampTemplate']");
+      tplInputs.forEach(r => {
+        r.checked = (r.value === state.currentStampClass);
+      });
+
+      // 날짜 포맷 라디오
+      const fmtInputs = document.querySelectorAll("input[name='dateFormat']");
+      fmtInputs.forEach(r => {
+        r.checked = (r.value === state.dateFormat);
+      });
+
+      const emoInputs = document.querySelectorAll("input[name='emotion']");
+      emoInputs.forEach(r => {
+        r.checked = (r.value === cut.emotion);
+      });
+
+      const expInputs = document.querySelectorAll("#expGroup input[type='checkbox']");
+      expInputs.forEach(chk => {
+        chk.checked = cut.experiences && cut.experiences.includes(chk.value);
+      });
+
+      if (cut.seasons && cut.seasons.length) {
+        state.currentSeasonTags = cut.seasons.slice();
+      } else if (cut.season) {
+        state.currentSeasonTags = [cut.season];
+      } else {
+        state.currentSeasonTags = [];
+      }
+      document.getElementById("seasonInput").value = "";
+      renderSeasonTags();
+
+      document.getElementById("captionInput").value = cut.caption || "";
+
+      const stInputs = document.querySelectorAll("#stickerGroup input[type='checkbox']");
+      stInputs.forEach(chk => {
+        const exists = cut.stickers && cut.stickers.some(s => s.key === chk.id);
+        chk.checked = !!exists;
+      });
+
+      updateModeUI();
+      updatePreviewFromForm();
+      recreateImageStickers(cut);
+
+      setTimeout(() => {
+        applyLayout(cut.layout);
+      }, 0);
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // --- 큰 이미지 뷰어 ---
+
+    function openViewer(cutId) {
+      const cut = state.cuts.find(c => c.id === cutId);
+      if (!cut) return;
+      viewerCurrentId = cutId;
+
+      const viewerModal = document.getElementById("viewerModal");
+      const viewerPhoto = document.getElementById("viewerPhoto");
+      const viewerDate = document.getElementById("viewerDate");
+      const viewerTime = document.getElementById("viewerTime");
+      const viewerFooterTime = document.getElementById("viewerFooterTime");
+      const viewerEmotion = document.getElementById("viewerEmotion");
+      const viewerExperiences = document.getElementById("viewerExperiences");
+      const viewerCaption = document.getElementById("viewerCaption");
+      const viewerSeasons = document.getElementById("viewerSeasons");
+      const viewerStamp = document.getElementById("viewerStamp");
+
+      viewerFooterTime.textContent = cut.time || "";
+
+      applyStampFormat(cut.date, cut.time, cut.dateFormat || "dateWeekday", viewerDate, viewerTime);
+
+      viewerEmotion.textContent = cut.emotion || "🙂 차분한 하루";
+
+      viewerExperiences.innerHTML = "";
+      if (cut.experiences && cut.experiences.length) {
+        cut.experiences.forEach(exp => {
+          const badge = document.createElement("div");
+          badge.className = "badge badge-soft";
+          badge.textContent = exp;
+          viewerExperiences.appendChild(badge);
+        });
+      }
+
+      viewerCaption.textContent = cut.caption || "";
+
+      const seasons = cut.seasons && cut.seasons.length
+        ? cut.seasons
+        : (cut.season ? [cut.season] : []);
+      viewerSeasons.textContent = seasons.join(" ");
+
+      viewerStamp.className = `stamp ${cut.stampTemplate || "stamp-theme-simple"}`;
+
+      if (cut.imageDataUrl) {
+        viewerPhoto.style.backgroundImage = `url(${cut.imageDataUrl})`;
+      } else {
+        viewerPhoto.style.backgroundImage = "linear-gradient(135deg, #ffe5ec, #bde0fe)";
+      }
+
+      viewerModal.style.display = "flex";
+    }
+
+    function closeViewer() {
+      const viewerModal = document.getElementById("viewerModal");
+      viewerModal.style.display = "none";
+      viewerCurrentId = null;
+    }
+
+    function handleDownloadViewer() {
+      if (!viewerCurrentId) return;
+      const cut = state.cuts.find(c => c.id === viewerCurrentId);
+      if (!cut || !cut.imageDataUrl) {
+        alert("저장할 사진이 없어요. 업로드하거나 촬영한 사진이 있는 카드만 저장할 수 있어요.");
+        return;
+      }
+      const link = document.createElement("a");
+      link.href = cut.imageDataUrl;
+      const safeDate = (cut.date || "").replace(/\./g, "");
+      const safeTime = (cut.time || "").replace(/:/g, "");
+      link.download = `ottoni_${safeDate}_${safeTime || ""}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function handleShareViewer() {
+      if (!viewerCurrentId) return;
+      const cut = state.cuts.find(c => c.id === viewerCurrentId);
+      const text = cut && cut.caption ? cut.caption : "오늘의 데일리컷";
+
+      if (navigator.share) {
+        navigator.share({
+          title: "오또니 데일리컷",
+          text,
+          url: window.location.href
+        }).catch(err => {
+          console.warn("Share cancelled or failed", err);
+        });
+      } else {
+        alert("이 브라우저에서는 웹 공유가 지원되지 않아요.\n앱 버전에서 카카오톡/인스타/페이스북 공유를 연결할 예정이에요.");
+      }
+    }
+
+    // --- 카메라 촬영 ---
+
+    function openCamera() {
+      const modal = document.getElementById("cameraModal");
+      const video = document.getElementById("cameraVideo");
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("앱 버전에서만 제공됩니다. (이 브라우저에서는 카메라 촬영을 지원하지 않아요)");
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          cameraStream = stream;
+          video.srcObject = stream;
+          modal.style.display = "flex";
+        })
+        .catch(err => {
+          console.warn("getUserMedia error", err);
+          alert("앱 버전에서만 제공됩니다. (카메라 접근이 거부되었거나 지원되지 않아요)");
+        });
+    }
+
+    function closeCamera() {
+      const modal = document.getElementById("cameraModal");
+      const video = document.getElementById("cameraVideo");
+
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+      }
+      video.srcObject = null;
+      modal.style.display = "none";
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById("cameraVideo");
+      const canvas = document.getElementById("cameraCanvas");
+      const modal = document.getElementById("cameraModal");
+
+      if (!cameraStream) {
+        alert("카메라가 활성화되지 않았어요.");
+        return;
+      }
+
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || 480;
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      state.imageDataUrl = dataUrl;
+      closeCamera();
+      modal.style.display = "none";
+      updatePreviewFromForm();
+    }
+
+    // --- 초기화 ---
+
+    function init() {
+      const now = new Date();
+      document.getElementById("today-date").textContent = formatDate(now);
+      document.getElementById("today-time").textContent = formatTime(now);
+
+      setInterval(() => {
+        const n = new Date();
+        document.getElementById("today-date").textContent = formatDate(n);
+        document.getElementById("today-time").textContent = formatTime(n);
+      }, 60000);
+
+      const photoInput = document.getElementById("photoInput");
+      photoInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) {
+          state.imageDataUrl = null;
+          updatePreviewFromForm();
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          state.imageDataUrl = evt.target.result;
+          updatePreviewFromForm();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      const idsToWatch = [
+        "emotionGroup",
+        "expGroup",
+        "stickerGroup",
+        "captionInput",
+        "templateGroup",
+        "dateFormatGroup"
+      ];
+      idsToWatch.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("input", updatePreviewFromForm);
+        el.addEventListener("change", updatePreviewFromForm);
+      });
+
+      const templateGroup = document.getElementById("templateGroup");
+      templateGroup.addEventListener("change", (e) => {
+        const target = e.target;
+        if (target && target.name === "stampTemplate") {
+          state.currentStampClass = target.value;
+          updatePreviewFromForm();
+        }
+      });
+
+      const dateFormatGroup = document.getElementById("dateFormatGroup");
+      if (dateFormatGroup) {
+        dateFormatGroup.addEventListener("change", (e) => {
+          const target = e.target;
+          if (target && target.name === "dateFormat") {
+            state.dateFormat = target.value;
+            updatePreviewFromForm();
+          }
+        });
+      }
+
+      document.getElementById("btnPreview").addEventListener("click", () => {
+        updatePreviewFromForm();
+        showError("");
+      });
+
+      document.getElementById("btnSave").addEventListener("click", () => {
+        updatePreviewFromForm();
+        handleSave();
+      });
+
+      document.getElementById("btnReset").addEventListener("click", handleResetAll);
+
+      document.getElementById("btnNew").addEventListener("click", () => {
+        state.editingId = null;
+        state.imageDataUrl = null;
+        document.querySelectorAll("input[name='emotion']").forEach(r => r.checked = false);
+        document.querySelectorAll("#expGroup input[type='checkbox']").forEach(chk => chk.checked = false);
+        document.getElementById("seasonInput").value = "";
+        state.currentSeasonTags = [];
+        renderSeasonTags();
+        document.getElementById("captionInput").value = "";
+        document.querySelectorAll("#stickerGroup input[type='checkbox']").forEach(chk => chk.checked = false);
+        document.getElementById("photoInput").value = "";
+
+        // 모든 스티커 오버레이 제거
+        const previewPhoto = document.getElementById("previewPhoto");
+        previewPhoto.querySelectorAll(".sticker-overlay").forEach(el => el.remove());
+
+        // 날짜 포맷/테마 기본값으로
+        state.currentStampClass = "stamp-theme-simple";
+        state.dateFormat = "dateWeekday";
+        const tplInputs = document.querySelectorAll("input[name='stampTemplate']");
+        tplInputs.forEach(r => { r.checked = (r.value === state.currentStampClass); });
+        const fmtInputs = document.querySelectorAll("input[name='dateFormat']");
+        fmtInputs.forEach(r => { r.checked = (r.value === state.dateFormat); });
+
+        updateModeUI();
+        updatePreviewFromForm();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      // 시즌 태그 이벤트
+      document.getElementById("btnAddSeason").addEventListener("click", addSeasonTagFromInput);
+      document.getElementById("seasonInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addSeasonTagFromInput();
+        }
+      });
+
+      // 카메라 버튼
+      document.getElementById("btnOpenCamera").addEventListener("click", openCamera);
+      document.getElementById("btnCloseCamera").addEventListener("click", closeCamera);
+      document.getElementById("btnCapture").addEventListener("click", capturePhoto);
+
+      // 모아보기 클릭
+      const collectionGrid = document.getElementById("collectionGrid");
+      collectionGrid.addEventListener("click", (e) => {
+        const card = e.target.closest(".mini-card");
+        if (!card) return;
+        const cutId = card.dataset.cutId;
+        if (!cutId) return;
+
+        if (state.selectionMode) {
+          toggleSelected(cutId);
+        } else {
+          openViewer(cutId);
+        }
+      });
+
+      // 선택 모드 버튼
+      document.getElementById("btnSelectMode").addEventListener("click", () => {
+        state.selectionMode = !state.selectionMode;
+        state.selectedIds.clear();
+        renderCollection();
+      });
+
+      document.getElementById("btnDeleteSelected").addEventListener("click", deleteSelectedCuts);
+
+      // 뷰어 버튼
+      document.getElementById("btnCloseViewer").addEventListener("click", closeViewer);
+      document.getElementById("btnEditFromViewer").addEventListener("click", () => {
+        if (!viewerCurrentId) return;
+        const id = viewerCurrentId;
+        closeViewer();
+        enterEditMode(id);
+      });
+      document.getElementById("btnDownloadViewer").addEventListener("click", handleDownloadViewer);
+      document.getElementById("btnShareViewer").addEventListener("click", handleShareViewer);
+
+      // 테마 스위처
+      document.querySelectorAll(".theme-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setTheme(btn.dataset.theme);
+        });
+      });
+
+      // SVG 스티커 팔레트 클릭
+      const imagePalette = document.getElementById("imageStickerPalette");
+      if (imagePalette) {
+        imagePalette.addEventListener("click", (e) => {
+          const btn = e.target.closest(".sticker-thumb");
+          if (!btn) return;
+          const imgName = btn.dataset.img;
+          if (!imgName) return;
+          addImageSticker(imgName);
+        });
+      }
+
+      // 프리뷰 영역에서 스티커 삭제 버튼 처리
+      const previewPhoto = document.getElementById("previewPhoto");
+      previewPhoto.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("delete-handle")) return;
+        const overlay = e.target.closest(".sticker-overlay");
+        if (!overlay) return;
+        const key = overlay.dataset.stickerKey;
+        overlay.remove();
+        if (key && key.startsWith("st_")) {
+          const chk = document.getElementById(key);
+          if (chk) chk.checked = false;
+        }
+        e.stopPropagation();
+      });
+
+      // 저장 데이터 로드
+      loadCuts();
+      renderCollection();
+
+      // 기본 시즌 태그 상태
+      state.currentSeasonTags = [];
+      renderSeasonTags();
+
+      initDraggables();
+      updateModeUI();
+      updatePreviewFromForm();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  })();
+</script>
+</body>
+</html>
