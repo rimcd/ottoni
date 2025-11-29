@@ -785,6 +785,148 @@
       color: #f9fafb;
     }
 
+    /* 모아보기 카드 내 요소들 */
+    .mini-stamp {
+      position: absolute;
+      padding: 0.15rem 0.3rem;
+      border-radius: 0.4rem;
+      font-size: 0.5rem;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 0.02rem;
+      color: #111827;
+      box-shadow: 0 2px 4px rgba(15,23,42,0.15);
+      background: #ffffff;
+      pointer-events: none;
+    }
+
+    .mini-stamp-date {
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      font-size: 0.5rem;
+    }
+
+    .mini-stamp-time {
+      font-size: 0.45rem;
+      opacity: 0.8;
+    }
+
+    .mini-stamp.stamp-theme-simple {
+      background: transparent;
+      border: 1px solid rgba(248,250,252,0.9);
+      color: #f9fafb;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.2);
+    }
+
+    .mini-stamp.stamp-theme-pink {
+      background: linear-gradient(135deg, #fb7185, #f97316);
+      border: 1px solid rgba(248,250,252,0.8);
+      color: #fefce8;
+    }
+
+    .mini-stamp.stamp-theme-dark {
+      background: rgba(15,23,42,0.92);
+      border: 1px solid rgba(148,163,184,0.8);
+      color: #f9fafb;
+    }
+
+    .mini-emotion-box {
+      position: absolute;
+      padding: 0.15rem 0.3rem;
+      border-radius: 0.4rem;
+      background: rgba(15,23,42,0.18);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 4px rgba(15,23,42,0.2);
+      color: #f9fafb;
+      font-size: 0.5rem;
+      pointer-events: none;
+    }
+
+    .mini-bottom-box {
+      position: absolute;
+      padding: 0.2rem 0.3rem;
+      border-radius: 0.4rem;
+      background: rgba(15,23,42,0.18);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 4px rgba(15,23,42,0.2);
+      color: #f9fafb;
+      font-size: 0.45rem;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .mini-sticker-overlay {
+      position: absolute;
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.4rem;
+      background: rgba(15,23,42,0.85);
+      color: #f9fafb;
+      font-size: 0.5rem;
+      box-shadow: 0 2px 4px rgba(15,23,42,0.3);
+      pointer-events: none;
+    }
+
+    .mini-sticker-overlay.img-sticker {
+      padding: 0.1rem;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .mini-sticker-overlay.img-sticker img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      pointer-events: none;
+    }
+
+    .mini-sticker-overlay.bubble {
+      background: #ffffff;
+      color: #111827;
+      border-radius: 0.5rem;
+      padding: 0.2rem 0.35rem;
+      box-shadow: 0 4px 8px rgba(15,23,42,0.25);
+    }
+
+    .mini-sticker-overlay.bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 7px;
+      border-width: 3px 3px 0 3px;
+      border-style: solid;
+      border-color: #ffffff transparent transparent transparent;
+    }
+
+    .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.1rem;
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.3rem;
+      background: rgba(17,24,39,0.65);
+      color: #f9fafb;
+      font-size: 0.45rem;
+    }
+
+    .mini-badge-soft {
+      background: rgba(249,250,251,0.92);
+      color: #111827;
+    }
+
+    .mini-caption-text {
+      font-size: 0.45rem;
+      color: #111827;
+      background: rgba(255,255,255,0.9);
+      padding: 0.1rem 0.2rem;
+      border-radius: 0.3rem;
+      max-width: 100%;
+      box-shadow: 0 2px 4px rgba(15,23,42,0.1);
+    }
+
     .mini-body {
       padding: 0.35rem 0.45rem 0.4rem;
       display: flex;
@@ -2008,38 +2150,180 @@
           wrapper.appendChild(indicator);
         }
 
-        const thumbOverlay = document.createElement("div");
-        thumbOverlay.className = "mini-thumb-overlay";
-        const thumbContent = document.createElement("div");
-        thumbContent.className = "mini-thumb-content";
+        // 저장된 레이아웃 정보를 사용하여 요소들을 정확히 재현
+        const layout = cut.layout;
+        if (layout) {
+          // 원본 preview-photo의 크기 (저장 시 기준)
+          const originalWidth = 480;
+          const originalHeight = 220; // preview-photo의 min-height
+          
+          // mini-thumb의 실제 크기 (높이는 70px, 너비는 그리드에 따라 달라짐)
+          // 일단 기본 너비를 130px로 가정 (minmax(130px, 1fr)이므로)
+          // 실제 렌더링 후에 조정할 수 있도록 함수로 분리
+          const applyLayoutToThumb = (thumbEl) => {
+            const rect = thumbEl.getBoundingClientRect();
+            const thumbWidth = rect.width || 130;
+            const thumbHeight = rect.height || 70;
 
-        const topRow = document.createElement("div");
-        topRow.style.display = "flex";
-        topRow.style.justifyContent = "space-between";
-        topRow.style.gap = "0.25rem";
+            // 날짜 스탬프
+            if (layout.stamp) {
+              const stamp = document.createElement("div");
+              stamp.className = "mini-stamp";
+              if (cut.stampTemplate) {
+                stamp.className += ` ${cut.stampTemplate}`;
+              }
+              const dateEl = document.createElement("div");
+              dateEl.className = "mini-stamp-date";
+              const timeEl = document.createElement("div");
+              timeEl.className = "mini-stamp-time";
+              
+              applyStampFormat(cut.date, cut.time, cut.dateFormat || "dateWeekday", dateEl, timeEl);
+              
+              stamp.appendChild(dateEl);
+              stamp.appendChild(timeEl);
+              stamp.style.left = (layout.stamp.left * thumbWidth) + "px";
+              stamp.style.top = (layout.stamp.top * thumbHeight) + "px";
+              stamp.style.width = (layout.stamp.width * thumbWidth) + "px";
+              if (layout.stamp.height) {
+                stamp.style.height = (layout.stamp.height * thumbHeight) + "px";
+              }
+              thumbEl.appendChild(stamp);
+            }
 
-        const dateSpan = document.createElement("span");
-        dateSpan.textContent = cut.date;
-        topRow.appendChild(dateSpan);
+            // 감정 박스
+            if (layout.emotionBox && cut.emotion) {
+              const emotionBox = document.createElement("div");
+              emotionBox.className = "mini-emotion-box";
+              emotionBox.textContent = cut.emotion;
+              emotionBox.style.left = (layout.emotionBox.left * thumbWidth) + "px";
+              emotionBox.style.top = (layout.emotionBox.top * thumbHeight) + "px";
+              emotionBox.style.width = (layout.emotionBox.width * thumbWidth) + "px";
+              if (layout.emotionBox.height) {
+                emotionBox.style.height = (layout.emotionBox.height * thumbHeight) + "px";
+              }
+              thumbEl.appendChild(emotionBox);
+            }
 
-        const seasons = cut.seasons && cut.seasons.length
-          ? cut.seasons
-          : (cut.season ? [cut.season] : []);
-        const seasonSpan = document.createElement("span");
-        seasonSpan.textContent = seasons.join(" ");
-        seasonSpan.style.fontSize = "0.65rem";
-        seasonSpan.style.opacity = "0.8";
-        topRow.appendChild(seasonSpan);
+            // 하단 박스 (경험 + 캡션)
+            if (layout.bottomBox) {
+              const bottomBox = document.createElement("div");
+              bottomBox.className = "mini-bottom-box";
+              
+              if (cut.experiences && cut.experiences.length) {
+                const badgeRow = document.createElement("div");
+                badgeRow.style.display = "flex";
+                badgeRow.style.flexWrap = "wrap";
+                badgeRow.style.gap = "0.1rem";
+                badgeRow.style.marginBottom = "0.1rem";
+                cut.experiences.forEach(exp => {
+                  const badge = document.createElement("div");
+                  badge.className = "mini-badge mini-badge-soft";
+                  badge.textContent = exp;
+                  badgeRow.appendChild(badge);
+                });
+                bottomBox.appendChild(badgeRow);
+              }
+              
+              if (cut.caption) {
+                const captionEl = document.createElement("div");
+                captionEl.className = "mini-caption-text";
+                captionEl.textContent = cut.caption;
+                bottomBox.appendChild(captionEl);
+              }
+              
+              bottomBox.style.left = (layout.bottomBox.left * thumbWidth) + "px";
+              bottomBox.style.top = (layout.bottomBox.top * thumbHeight) + "px";
+              bottomBox.style.width = (layout.bottomBox.width * thumbWidth) + "px";
+              if (layout.bottomBox.height) {
+                bottomBox.style.height = (layout.bottomBox.height * thumbHeight) + "px";
+              }
+              thumbEl.appendChild(bottomBox);
+            }
 
-        const emoSpan = document.createElement("span");
-        emoSpan.textContent = cut.emotion || "";
-        emoSpan.style.fontSize = "0.8rem";
+            // 스티커들 (이모지 + 일러스트)
+            if (layout.stickers && Array.isArray(layout.stickers)) {
+              layout.stickers.forEach(sticker => {
+                if (!sticker.key) return;
+                
+                const stickerEl = document.createElement("div");
+                stickerEl.className = "mini-sticker-overlay";
+                
+                // 일러스트 스티커인 경우
+                if (sticker.img) {
+                  stickerEl.classList.add("img-sticker");
+                  const img = document.createElement("img");
+                  img.src = `img/${sticker.img}`;
+                  img.alt = sticker.img;
+                  stickerEl.appendChild(img);
+                } else {
+                  // 이모지 스티커인 경우
+                  const stickerData = cut.stickers && cut.stickers.find(s => s.key === sticker.key);
+                  if (stickerData) {
+                    if (sticker.key === "st_bubble") {
+                      stickerEl.classList.add("bubble");
+                      stickerEl.textContent = "오늘의 한 마디";
+                    } else {
+                      stickerEl.textContent = stickerData.label;
+                    }
+                  }
+                }
+                
+                stickerEl.style.left = (sticker.left * thumbWidth) + "px";
+                stickerEl.style.top = (sticker.top * thumbHeight) + "px";
+                stickerEl.style.width = (sticker.width * thumbWidth) + "px";
+                if (sticker.height) {
+                  stickerEl.style.height = (sticker.height * thumbHeight) + "px";
+                }
+                thumbEl.appendChild(stickerEl);
+              });
+            }
+          };
+          
+          // 카드가 DOM에 추가된 후 실제 크기를 측정하여 레이아웃 적용
+          wrapper.appendChild(thumb);
+          grid.appendChild(wrapper);
+          
+          // requestAnimationFrame을 사용하여 렌더링 후 실제 크기 측정
+          requestAnimationFrame(() => {
+            applyLayoutToThumb(thumb);
+          });
+        } else {
+          // 레이아웃 정보가 없는 경우 기존 방식으로 표시
+          const thumbOverlay = document.createElement("div");
+          thumbOverlay.className = "mini-thumb-overlay";
+          const thumbContent = document.createElement("div");
+          thumbContent.className = "mini-thumb-content";
 
-        thumbContent.appendChild(topRow);
-        thumbContent.appendChild(emoSpan);
+          const topRow = document.createElement("div");
+          topRow.style.display = "flex";
+          topRow.style.justifyContent = "space-between";
+          topRow.style.gap = "0.25rem";
 
-        thumb.appendChild(thumbOverlay);
-        thumb.appendChild(thumbContent);
+          const dateSpan = document.createElement("span");
+          dateSpan.textContent = cut.date;
+          topRow.appendChild(dateSpan);
+
+          const seasonsForDisplay = cut.seasons && cut.seasons.length
+            ? cut.seasons
+            : (cut.season ? [cut.season] : []);
+          const seasonSpan = document.createElement("span");
+          seasonSpan.textContent = seasonsForDisplay.join(" ");
+          seasonSpan.style.fontSize = "0.65rem";
+          seasonSpan.style.opacity = "0.8";
+          topRow.appendChild(seasonSpan);
+
+          const emoSpan = document.createElement("span");
+          emoSpan.textContent = cut.emotion || "";
+          emoSpan.style.fontSize = "0.8rem";
+
+          thumbContent.appendChild(topRow);
+          thumbContent.appendChild(emoSpan);
+
+          thumb.appendChild(thumbOverlay);
+          thumb.appendChild(thumbContent);
+          
+          wrapper.appendChild(thumb);
+        }
 
         const body = document.createElement("div");
         body.className = "mini-body";
@@ -2055,6 +2339,9 @@
         }
 
         // 시즌 태그 2개까지 보여주기
+        const seasons = cut.seasons && cut.seasons.length
+          ? cut.seasons
+          : (cut.season ? [cut.season] : []);
         seasons.slice(0, 2).forEach(s => {
           const chip = document.createElement("div");
           chip.className = "mini-chip";
@@ -2076,10 +2363,14 @@
         body.appendChild(chipRow);
         body.appendChild(caption);
 
-        wrapper.appendChild(thumb);
+        if (!layout) {
+          wrapper.appendChild(thumb);
+        }
         wrapper.appendChild(body);
 
-        grid.appendChild(wrapper);
+        if (!layout) {
+          grid.appendChild(wrapper);
+        }
       });
 
       updateSelectionButtons();
