@@ -1486,6 +1486,7 @@
       <button id="btnDownloadViewer" class="btn btn-outline" type="button">사진 저장</button>
       <button id="btnShareViewer" class="btn btn-outline" type="button">공유</button>
       <button id="btnEditFromViewer" class="btn btn-outline" type="button">✏️ 편집하기</button>
+      <button id="btnDeleteViewer" class="btn btn-outline btn-danger" type="button">🗑️ 삭제</button>
       <button id="btnCloseViewer" class="btn btn-outline" type="button">닫기</button>
     </div>
   </div>
@@ -2577,23 +2578,12 @@
       const viewerSeasons = document.getElementById("viewerSeasons");
       const viewerStamp = document.getElementById("viewerStamp");
 
+      // 기존 요소들 제거 (스티커 등)
+      viewerPhoto.querySelectorAll(".sticker-overlay").forEach(el => el.remove());
+
       viewerFooterTime.textContent = cut.time || "";
 
       applyStampFormat(cut.date, cut.time, cut.dateFormat || "dateWeekday", viewerDate, viewerTime);
-
-      viewerEmotion.textContent = cut.emotion || "🙂 차분한 하루";
-
-      viewerExperiences.innerHTML = "";
-      if (cut.experiences && cut.experiences.length) {
-        cut.experiences.forEach(exp => {
-          const badge = document.createElement("div");
-          badge.className = "badge badge-soft";
-          badge.textContent = exp;
-          viewerExperiences.appendChild(badge);
-        });
-      }
-
-      viewerCaption.textContent = cut.caption || "";
 
       const seasons = cut.seasons && cut.seasons.length
         ? cut.seasons
@@ -2609,6 +2599,120 @@
       }
 
       viewerModal.style.display = "flex";
+
+      // 저장된 레이아웃 정보를 사용하여 모든 요소를 정확히 재현
+      // 모달이 표시된 후 실제 크기를 측정하기 위해 requestAnimationFrame 사용
+      requestAnimationFrame(() => {
+        const layout = cut.layout;
+        if (layout) {
+          const rect = viewerPhoto.getBoundingClientRect();
+          const w = rect.width || 1;
+          const h = rect.height || 1;
+
+          function applyTo(el, info) {
+            if (!el || !info) return;
+            el.style.left = (info.left * w) + "px";
+            el.style.top = (info.top * h) + "px";
+            if (info.width) {
+              el.style.width = (info.width * w) + "px";
+            }
+            if (info.height) {
+              el.style.height = (info.height * h) + "px";
+            }
+          }
+
+          // 날짜 스탬프
+          if (layout.stamp) {
+            applyTo(viewerStamp, layout.stamp);
+          }
+
+          // 감정 박스
+          if (layout.emotionBox && cut.emotion) {
+            viewerEmotion.textContent = cut.emotion || "🙂 차분한 하루";
+            const viewerEmotionBox = document.getElementById("viewerEmotionBox");
+            applyTo(viewerEmotionBox, layout.emotionBox);
+          } else {
+            viewerEmotion.textContent = cut.emotion || "🙂 차분한 하루";
+          }
+
+          // 하단 박스 (경험 + 캡션)
+          if (layout.bottomBox) {
+            viewerExperiences.innerHTML = "";
+            if (cut.experiences && cut.experiences.length) {
+              cut.experiences.forEach(exp => {
+                const badge = document.createElement("div");
+                badge.className = "badge badge-soft";
+                badge.textContent = exp;
+                viewerExperiences.appendChild(badge);
+              });
+            }
+
+            viewerCaption.textContent = cut.caption || "";
+
+            const viewerBottomBox = document.getElementById("viewerBottomBox");
+            applyTo(viewerBottomBox, layout.bottomBox);
+          } else {
+            viewerExperiences.innerHTML = "";
+            if (cut.experiences && cut.experiences.length) {
+              cut.experiences.forEach(exp => {
+                const badge = document.createElement("div");
+                badge.className = "badge badge-soft";
+                badge.textContent = exp;
+                viewerExperiences.appendChild(badge);
+              });
+            }
+            viewerCaption.textContent = cut.caption || "";
+          }
+
+          // 스티커들 (이모지 + 일러스트)
+          if (layout.stickers && Array.isArray(layout.stickers)) {
+            layout.stickers.forEach(sticker => {
+              if (!sticker.key) return;
+              
+              const stickerEl = document.createElement("div");
+              stickerEl.className = "sticker-overlay";
+              
+              // 일러스트 스티커인 경우
+              if (sticker.img) {
+                stickerEl.classList.add("img-sticker");
+                const img = document.createElement("img");
+                img.src = `img/${sticker.img}`;
+                img.alt = sticker.img;
+                stickerEl.appendChild(img);
+              } else {
+                // 이모지 스티커인 경우
+                const stickerData = cut.stickers && cut.stickers.find(s => s.key === sticker.key);
+                if (stickerData) {
+                  if (sticker.key === "st_bubble") {
+                    stickerEl.classList.add("bubble");
+                    stickerEl.textContent = "오늘의 한 마디";
+                  } else {
+                    stickerEl.textContent = stickerData.label;
+                  }
+                }
+              }
+              
+              applyTo(stickerEl, sticker);
+              viewerPhoto.appendChild(stickerEl);
+            });
+          }
+        } else {
+          // 레이아웃 정보가 없는 경우 기존 방식
+          viewerEmotion.textContent = cut.emotion || "🙂 차분한 하루";
+
+          viewerExperiences.innerHTML = "";
+          if (cut.experiences && cut.experiences.length) {
+            cut.experiences.forEach(exp => {
+              const badge = document.createElement("div");
+              badge.className = "badge badge-soft";
+              badge.textContent = exp;
+              viewerExperiences.appendChild(badge);
+            });
+          }
+
+          viewerCaption.textContent = cut.caption || "";
+        }
+      });
     }
 
     function closeViewer() {
@@ -2650,6 +2754,23 @@
       } else {
         alert("이 브라우저에서는 웹 공유가 지원되지 않아요.\n앱 버전에서 카카오톡/인스타/페이스북 공유를 연결할 예정이에요.");
       }
+    }
+
+    function handleDeleteViewer() {
+      if (!viewerCurrentId) return;
+      const cut = state.cuts.find(c => c.id === viewerCurrentId);
+      if (!cut) return;
+
+      if (!confirm("이 데일리컷을 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) {
+        return;
+      }
+
+      state.cuts = state.cuts.filter(c => c.id !== viewerCurrentId);
+      state.selectedIds.delete(viewerCurrentId);
+      saveCuts();
+      renderCollection();
+      closeViewer();
+      alert("데일리컷이 삭제되었어요.");
     }
 
     // --- 카메라 촬영 ---
@@ -2865,6 +2986,7 @@
       });
       document.getElementById("btnDownloadViewer").addEventListener("click", handleDownloadViewer);
       document.getElementById("btnShareViewer").addEventListener("click", handleShareViewer);
+      document.getElementById("btnDeleteViewer").addEventListener("click", handleDeleteViewer);
 
       // 테마 스위처
       document.querySelectorAll(".theme-btn").forEach(btn => {
