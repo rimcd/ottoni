@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>오또니 | 데일리컷 MVP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
@@ -762,7 +763,7 @@
 
     .mini-thumb {
       position: relative;
-      height: 70px;
+      aspect-ratio: 1 / 1;
       background-size: cover;
       background-position: center;
       background-image: linear-gradient(135deg, #ffe5ec, #bde0fe);
@@ -1137,6 +1138,28 @@
             <div class="field-hint">일부 브라우저에서는 웹에서 카메라 촬영이 지원되지 않을 수 있어요.</div>
           </div>
 
+          <!-- 사진 배율 선택 -->
+          <div class="stack">
+            <div class="field-label">
+              <span>사진 배율</span>
+              <span class="field-hint">미리보기에서 사진이 표시되는 비율을 선택해요</span>
+            </div>
+            <div class="pill-row" id="aspectRatioGroup">
+              <div class="chip-input">
+                <input type="radio" name="aspectRatio" id="aspect_1_1" value="1:1" checked />
+                <label for="aspect_1_1">1:1 정사각형</label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="aspectRatio" id="aspect_4_3" value="4:3" />
+                <label for="aspect_4_3">4:3</label>
+              </div>
+              <div class="chip-input">
+                <input type="radio" name="aspectRatio" id="aspect_original" value="original" />
+                <label for="aspect_original">원본</label>
+              </div>
+            </div>
+          </div>
+
           <!-- 날짜/시간 스탬프 템플릿 (테마) -->
           <div class="stack">
             <div class="field-label">
@@ -1502,6 +1525,7 @@
       cuts: [],
       currentStampClass: "stamp-theme-simple",
       dateFormat: "dateWeekday",
+      aspectRatio: "1:1",
       editingId: null,
       currentSeasonTags: [],
       selectionMode: false,
@@ -1941,8 +1965,24 @@
 
       // 사진 / 배경
       const previewPhoto = document.getElementById("previewPhoto");
+      
+      // 배율 적용
+      if (state.aspectRatio === "1:1") {
+        previewPhoto.style.aspectRatio = "1 / 1";
+        previewPhoto.style.objectFit = "cover";
+      } else if (state.aspectRatio === "4:3") {
+        previewPhoto.style.aspectRatio = "4 / 3";
+        previewPhoto.style.objectFit = "cover";
+      } else {
+        previewPhoto.style.aspectRatio = "auto";
+        previewPhoto.style.objectFit = "contain";
+      }
+      
       if (state.imageDataUrl) {
         previewPhoto.style.backgroundImage = `url(${state.imageDataUrl})`;
+        previewPhoto.style.backgroundSize = state.aspectRatio === "original" ? "contain" : "cover";
+        previewPhoto.style.backgroundPosition = "center";
+        previewPhoto.style.backgroundRepeat = "no-repeat";
       } else {
         const theme = document.body.getAttribute("data-theme") || "cotton";
         let bg;
@@ -2138,7 +2178,10 @@
 
         const thumb = document.createElement("div");
         thumb.className = "mini-thumb";
-        if (cut.imageDataUrl) {
+        // fullImageDataUrl이 있으면 사용, 없으면 imageDataUrl 사용
+        if (cut.fullImageDataUrl) {
+          thumb.style.backgroundImage = `url(${cut.fullImageDataUrl})`;
+        } else if (cut.imageDataUrl) {
           thumb.style.backgroundImage = `url(${cut.imageDataUrl})`;
         } else {
           thumb.style.backgroundImage = "linear-gradient(135deg, #ffe5ec, #bde0fe)";
@@ -2151,180 +2194,8 @@
           wrapper.appendChild(indicator);
         }
 
-        // 저장된 레이아웃 정보를 사용하여 요소들을 정확히 재현
-        const layout = cut.layout;
-        if (layout) {
-          // 원본 preview-photo의 크기 (저장 시 기준)
-          const originalWidth = 480;
-          const originalHeight = 220; // preview-photo의 min-height
-          
-          // mini-thumb의 실제 크기 (높이는 70px, 너비는 그리드에 따라 달라짐)
-          // 일단 기본 너비를 130px로 가정 (minmax(130px, 1fr)이므로)
-          // 실제 렌더링 후에 조정할 수 있도록 함수로 분리
-          const applyLayoutToThumb = (thumbEl) => {
-            const rect = thumbEl.getBoundingClientRect();
-            const thumbWidth = rect.width || 130;
-            const thumbHeight = rect.height || 70;
-
-            // 날짜 스탬프
-            if (layout.stamp) {
-              const stamp = document.createElement("div");
-              stamp.className = "mini-stamp";
-              if (cut.stampTemplate) {
-                stamp.className += ` ${cut.stampTemplate}`;
-              }
-              const dateEl = document.createElement("div");
-              dateEl.className = "mini-stamp-date";
-              const timeEl = document.createElement("div");
-              timeEl.className = "mini-stamp-time";
-              
-              applyStampFormat(cut.date, cut.time, cut.dateFormat || "dateWeekday", dateEl, timeEl);
-              
-              stamp.appendChild(dateEl);
-              stamp.appendChild(timeEl);
-              stamp.style.left = (layout.stamp.left * thumbWidth) + "px";
-              stamp.style.top = (layout.stamp.top * thumbHeight) + "px";
-              stamp.style.width = (layout.stamp.width * thumbWidth) + "px";
-              if (layout.stamp.height) {
-                stamp.style.height = (layout.stamp.height * thumbHeight) + "px";
-              }
-              thumbEl.appendChild(stamp);
-            }
-
-            // 감정 박스
-            if (layout.emotionBox && cut.emotion) {
-              const emotionBox = document.createElement("div");
-              emotionBox.className = "mini-emotion-box";
-              emotionBox.textContent = cut.emotion;
-              emotionBox.style.left = (layout.emotionBox.left * thumbWidth) + "px";
-              emotionBox.style.top = (layout.emotionBox.top * thumbHeight) + "px";
-              emotionBox.style.width = (layout.emotionBox.width * thumbWidth) + "px";
-              if (layout.emotionBox.height) {
-                emotionBox.style.height = (layout.emotionBox.height * thumbHeight) + "px";
-              }
-              thumbEl.appendChild(emotionBox);
-            }
-
-            // 하단 박스 (경험 + 캡션)
-            if (layout.bottomBox) {
-              const bottomBox = document.createElement("div");
-              bottomBox.className = "mini-bottom-box";
-              
-              if (cut.experiences && cut.experiences.length) {
-                const badgeRow = document.createElement("div");
-                badgeRow.style.display = "flex";
-                badgeRow.style.flexWrap = "wrap";
-                badgeRow.style.gap = "0.1rem";
-                badgeRow.style.marginBottom = "0.1rem";
-                cut.experiences.forEach(exp => {
-                  const badge = document.createElement("div");
-                  badge.className = "mini-badge mini-badge-soft";
-                  badge.textContent = exp;
-                  badgeRow.appendChild(badge);
-                });
-                bottomBox.appendChild(badgeRow);
-              }
-              
-              if (cut.caption) {
-                const captionEl = document.createElement("div");
-                captionEl.className = "mini-caption-text";
-                captionEl.textContent = cut.caption;
-                bottomBox.appendChild(captionEl);
-              }
-              
-              bottomBox.style.left = (layout.bottomBox.left * thumbWidth) + "px";
-              bottomBox.style.top = (layout.bottomBox.top * thumbHeight) + "px";
-              bottomBox.style.width = (layout.bottomBox.width * thumbWidth) + "px";
-              if (layout.bottomBox.height) {
-                bottomBox.style.height = (layout.bottomBox.height * thumbHeight) + "px";
-              }
-              thumbEl.appendChild(bottomBox);
-            }
-
-            // 스티커들 (이모지 + 일러스트)
-            if (layout.stickers && Array.isArray(layout.stickers)) {
-              layout.stickers.forEach(sticker => {
-                if (!sticker.key) return;
-                
-                const stickerEl = document.createElement("div");
-                stickerEl.className = "mini-sticker-overlay";
-                
-                // 일러스트 스티커인 경우
-                if (sticker.img) {
-                  stickerEl.classList.add("img-sticker");
-                  const img = document.createElement("img");
-                  img.src = `img/${sticker.img}`;
-                  img.alt = sticker.img;
-                  stickerEl.appendChild(img);
-                } else {
-                  // 이모지 스티커인 경우
-                  const stickerData = cut.stickers && cut.stickers.find(s => s.key === sticker.key);
-                  if (stickerData) {
-                    if (sticker.key === "st_bubble") {
-                      stickerEl.classList.add("bubble");
-                      stickerEl.textContent = "오늘의 한 마디";
-                    } else {
-                      stickerEl.textContent = stickerData.label;
-                    }
-                  }
-                }
-                
-                stickerEl.style.left = (sticker.left * thumbWidth) + "px";
-                stickerEl.style.top = (sticker.top * thumbHeight) + "px";
-                stickerEl.style.width = (sticker.width * thumbWidth) + "px";
-                if (sticker.height) {
-                  stickerEl.style.height = (sticker.height * thumbHeight) + "px";
-                }
-                thumbEl.appendChild(stickerEl);
-              });
-            }
-          };
-          
-          // 카드가 DOM에 추가된 후 실제 크기를 측정하여 레이아웃 적용
-          wrapper.appendChild(thumb);
-          grid.appendChild(wrapper);
-          
-          // requestAnimationFrame을 사용하여 렌더링 후 실제 크기 측정
-          requestAnimationFrame(() => {
-            applyLayoutToThumb(thumb);
-          });
-        } else {
-          // 레이아웃 정보가 없는 경우 기존 방식으로 표시
-          const thumbOverlay = document.createElement("div");
-          thumbOverlay.className = "mini-thumb-overlay";
-          const thumbContent = document.createElement("div");
-          thumbContent.className = "mini-thumb-content";
-
-          const topRow = document.createElement("div");
-          topRow.style.display = "flex";
-          topRow.style.justifyContent = "space-between";
-          topRow.style.gap = "0.25rem";
-
-          const dateSpan = document.createElement("span");
-          dateSpan.textContent = cut.date;
-          topRow.appendChild(dateSpan);
-
-          const seasonsForDisplay = cut.seasons && cut.seasons.length
-            ? cut.seasons
-            : (cut.season ? [cut.season] : []);
-          const seasonSpan = document.createElement("span");
-          seasonSpan.textContent = seasonsForDisplay.join(" ");
-          seasonSpan.style.fontSize = "0.65rem";
-          seasonSpan.style.opacity = "0.8";
-          topRow.appendChild(seasonSpan);
-
-          const emoSpan = document.createElement("span");
-          emoSpan.textContent = cut.emotion || "";
-          emoSpan.style.fontSize = "0.8rem";
-
-          thumbContent.appendChild(topRow);
-          thumbContent.appendChild(emoSpan);
-
-          thumb.appendChild(thumbOverlay);
-          thumb.appendChild(thumbContent);
-          
-          wrapper.appendChild(thumb);
-        }
+        // fullImageDataUrl을 사용하여 썸네일 표시 (정사각형으로 크롭됨)
+        wrapper.appendChild(thumb);
 
         const body = document.createElement("div");
         body.className = "mini-body";
@@ -2364,14 +2235,8 @@
         body.appendChild(chipRow);
         body.appendChild(caption);
 
-        if (!layout) {
-          wrapper.appendChild(thumb);
-        }
         wrapper.appendChild(body);
-
-        if (!layout) {
-          grid.appendChild(wrapper);
-        }
+        grid.appendChild(wrapper);
       });
 
       updateSelectionButtons();
@@ -2379,7 +2244,7 @@
 
     // --- 저장/업데이트 ---
 
-    function handleSave() {
+    async function handleSave() {
       showError("");
 
       const now = new Date();
@@ -2416,6 +2281,23 @@
 
       const layout = buildLayout();
 
+      // 전체 preview-card를 이미지로 캡처
+      let fullImageDataUrl = null;
+      try {
+        const previewCard = document.getElementById("previewCard");
+        if (previewCard && typeof html2canvas !== 'undefined') {
+          const canvas = await html2canvas(previewCard, {
+            backgroundColor: null,
+            scale: 2,
+            useCORS: true,
+            logging: false
+          });
+          fullImageDataUrl = canvas.toDataURL("image/png");
+        }
+      } catch (err) {
+        console.warn("Failed to capture full image", err);
+      }
+
       if (state.editingId) {
         const idx = state.cuts.findIndex(c => c.id === state.editingId);
         if (idx !== -1) {
@@ -2423,6 +2305,8 @@
           const updated = {
             ...existing,
             imageDataUrl: state.imageDataUrl || null,
+            fullImageDataUrl: fullImageDataUrl || existing.fullImageDataUrl || null,
+            aspectRatio: state.aspectRatio,
             emotion,
             experiences,
             mainExperience: experiences[0] || "",
@@ -2448,6 +2332,8 @@
           date: headerDateStr,
           time: headerTimeStr,
           imageDataUrl: state.imageDataUrl || null,
+          fullImageDataUrl: fullImageDataUrl || null,
+          aspectRatio: state.aspectRatio,
           emotion,
           experiences,
           mainExperience: experiences[0] || "",
@@ -2508,6 +2394,7 @@
       state.imageDataUrl = cut.imageDataUrl || null;
       state.currentStampClass = cut.stampTemplate || "stamp-theme-simple";
       state.dateFormat = cut.dateFormat || "dateWeekday";
+      state.aspectRatio = cut.aspectRatio || "1:1";
 
       // 스탬프 테마 라디오
       const tplInputs = document.querySelectorAll("input[name='stampTemplate']");
@@ -2519,6 +2406,12 @@
       const fmtInputs = document.querySelectorAll("input[name='dateFormat']");
       fmtInputs.forEach(r => {
         r.checked = (r.value === state.dateFormat);
+      });
+
+      // 사진 배율 라디오
+      const aspectInputs = document.querySelectorAll("input[name='aspectRatio']");
+      aspectInputs.forEach(r => {
+        r.checked = (r.value === state.aspectRatio);
       });
 
       const emoInputs = document.querySelectorAll("input[name='emotion']");
@@ -2592,8 +2485,21 @@
 
       viewerStamp.className = `stamp ${cut.stampTemplate || "stamp-theme-simple"}`;
 
+      // 원본 비율로 표시
+      const aspectRatio = cut.aspectRatio || "1:1";
+      if (aspectRatio === "1:1") {
+        viewerPhoto.style.aspectRatio = "1 / 1";
+      } else if (aspectRatio === "4:3") {
+        viewerPhoto.style.aspectRatio = "4 / 3";
+      } else {
+        viewerPhoto.style.aspectRatio = "auto";
+      }
+
       if (cut.imageDataUrl) {
         viewerPhoto.style.backgroundImage = `url(${cut.imageDataUrl})`;
+        viewerPhoto.style.backgroundSize = aspectRatio === "original" ? "contain" : "cover";
+        viewerPhoto.style.backgroundPosition = "center";
+        viewerPhoto.style.backgroundRepeat = "no-repeat";
       } else {
         viewerPhoto.style.backgroundImage = "linear-gradient(135deg, #ffe5ec, #bde0fe)";
       }
@@ -2738,21 +2644,69 @@
       document.body.removeChild(link);
     }
 
-    function handleShareViewer() {
+    async function handleShareViewer() {
       if (!viewerCurrentId) return;
       const cut = state.cuts.find(c => c.id === viewerCurrentId);
-      const text = cut && cut.caption ? cut.caption : "오늘의 데일리컷";
+      if (!cut) return;
 
-      if (navigator.share) {
-        navigator.share({
-          title: "오또니 데일리컷",
-          text,
-          url: window.location.href
-        }).catch(err => {
-          console.warn("Share cancelled or failed", err);
+      const viewerCard = document.getElementById("viewerCard");
+      if (!viewerCard) return;
+
+      try {
+        // html2canvas를 사용하여 뷰어 카드를 이미지로 변환
+        if (typeof html2canvas === 'undefined') {
+          alert("이미지 공유 기능을 사용할 수 없어요. 페이지를 새로고침해주세요.");
+          return;
+        }
+
+        const canvas = await html2canvas(viewerCard, {
+          backgroundColor: null,
+          scale: 2,
+          useCORS: true,
+          logging: false
         });
-      } else {
-        alert("이 브라우저에서는 웹 공유가 지원되지 않아요.\n앱 버전에서 카카오톡/인스타/페이스북 공유를 연결할 예정이에요.");
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            alert("이미지 생성에 실패했어요.");
+            return;
+          }
+
+          const file = new File([blob], `ottoni_${cut.date || 'daily'}.png`, { type: 'image/png' });
+
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "오또니 데일리컷",
+                text: cut.caption || "오늘의 데일리컷",
+                files: [file]
+              });
+            } catch (err) {
+              if (err.name !== 'AbortError') {
+                console.warn("Share cancelled or failed", err);
+                // 공유 실패 시 다운로드로 대체
+                downloadImage(canvas);
+              }
+            }
+          } else {
+            // Web Share API가 파일 공유를 지원하지 않는 경우 다운로드
+            downloadImage(canvas);
+          }
+        }, 'image/png');
+      } catch (err) {
+        console.error("Share error", err);
+        alert("이미지 공유 중 오류가 발생했어요. 다시 시도해주세요.");
+      }
+
+      function downloadImage(canvas) {
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        const safeDate = (cut.date || "").replace(/\./g, "");
+        const safeTime = (cut.time || "").replace(/:/g, "");
+        link.download = `ottoni_${safeDate}_${safeTime || ""}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     }
 
@@ -2892,6 +2846,17 @@
           const target = e.target;
           if (target && target.name === "dateFormat") {
             state.dateFormat = target.value;
+            updatePreviewFromForm();
+          }
+        });
+      }
+
+      const aspectRatioGroup = document.getElementById("aspectRatioGroup");
+      if (aspectRatioGroup) {
+        aspectRatioGroup.addEventListener("change", (e) => {
+          const target = e.target;
+          if (target && target.name === "aspectRatio") {
+            state.aspectRatio = target.value;
             updatePreviewFromForm();
           }
         });
